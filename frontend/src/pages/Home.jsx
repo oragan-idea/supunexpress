@@ -63,7 +63,7 @@ function App() {
         }),
       });
 
-      setSuccess("Links submitted successfully! We will get back to you soon");
+      setSuccess("Links submitted successfully! ✅");
       setLinksList([]);
     } catch (err) {
       console.error(err);
@@ -156,6 +156,34 @@ function App() {
           </button>
         </div>
       </div>
+
+      <div className="grid md:grid-cols-3 gap-8 py-16">
+              <div className="text-center p-6 bg-white rounded-xl shadow-lg">
+                <div className="w-12 h-12 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-white text-2xl">🌍</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Global Sourcing</h3>
+                <p className="text-gray-600">Access products from AliExpress, Amazon, and more worldwide markets</p>
+              </div>
+              
+              <div className="text-center p-6 bg-white rounded-xl shadow-lg">
+                <div className="w-12 h-12 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-white text-2xl">🚚</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Fast Delivery</h3>
+                <p className="text-gray-600">Optimized shipping routes for quicker delivery to your location</p>
+              </div>
+              
+              <div className="text-center p-6 bg-white rounded-xl shadow-lg">
+                <div className="w-12 h-12 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-white text-2xl">🛡️</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Quality Assurance</h3>
+                <p className="text-gray-600">We verify products and ensure quality before delivery</p>
+              </div>
+            </div>
+
+            
 
       {/* Footer */}
       <footer className="text-center py-6 text-neutral-500 text-sm mt-auto border-t border-neutral-200">

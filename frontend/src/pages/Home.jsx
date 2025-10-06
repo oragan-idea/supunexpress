@@ -13,6 +13,25 @@ function App() {
 
   const auth = getAuth(); // ✅ Initialize auth
 
+  const sendEmail = async (data) => {
+    const EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuDoDnhStp86-yOS58q9XsiJ41KeoH3CqMfZSPhO2m-XK19unPMXC9w_8DZbImfaFz/exec";
+
+    try {
+      await fetch(EMAIL_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'no-cors', 
+      });
+
+      
+      return { status: 'success' };
+    } catch (err) {
+      console.error('Email send error:', err);
+      throw new Error('Failed to send email');
+    }
+  };
+
   // Add link
   const handleAddLink = () => {
     const trimmed = linkInput.trim();
@@ -36,9 +55,9 @@ function App() {
     setSuccess(null);
   };
 
-  // Submit links to Google Sheets
+  // Submit links to Google Sheets and send email
   const handleSubmitLinks = async () => {
-    const user = auth.currentUser; // ✅ get current logged-in user
+    const user = auth.currentUser;
     if (!user) {
       alert("⚠️ Please login before submitting links");
       return;
@@ -49,25 +68,31 @@ function App() {
     setError(null);
     setSuccess(null);
 
+    const payload = {
+      uid: user.uid,
+      name: user.displayName || "No Name",
+      email: user.email,
+      links: linksList,
+      submittedAt: new Date().toISOString(),
+    };
+
     try {
+      // Submit to Google Sheets (optional)
       await fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: user.uid,
-          name: user.displayName || "No Name", // ✅ include user's name
-          email: user.email, // ✅ include user's email
-          links: linksList,
-          submittedAt: new Date().toISOString(), // optional: date/time
-        }),
+        body: JSON.stringify(payload),
       });
 
-      setSuccess("Links submitted successfully! ✅");
+      // Send email
+      await sendEmail(payload);
+
+      setSuccess("Links submitted and email sent successfully! ✅");
       setLinksList([]);
     } catch (err) {
       console.error(err);
-      setError("❌ Failed to submit links. Please try again.");
+      setError("❌ Failed to submit links or send email. Please try again.");
     }
 
     setLoading(false);

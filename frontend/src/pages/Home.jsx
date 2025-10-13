@@ -77,7 +77,7 @@ function App() {
     };
 
     try {
-      // Submit to Google Sheets (optional)
+      // Submit to Google Sheets ONLY
       await fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",

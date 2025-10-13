@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { Link } from "react-router-dom";
 
+function getCartKey(user) {
+  return user && user.email ? `cart_${user.email}` : "cart_guest";
+}
+
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwP8n4qp477Tk5vM3PeFpgfEzNMVC1b7nmrR4SI0J2XT4vTK1EDPzZpED89rz49w8tk/exec"; // Same as admin
 
 function Invoice() {
@@ -9,6 +13,14 @@ function Invoice() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const auth = getAuth();
+  const [user, setUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -60,7 +72,8 @@ function Invoice() {
                 <a href={card.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mt-2 inline-block">View Product</a>
                 <button
                   onClick={() => {
-                    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                    const key = getCartKey(user);
+                    const cart = JSON.parse(localStorage.getItem(key) || "[]");
                     // Prevent duplicate by checking unique productName + price + userEmail
                     const exists = cart.some(
                       (item) =>
@@ -73,7 +86,7 @@ function Invoice() {
                       return;
                     }
                     cart.push(card);
-                    localStorage.setItem("cart", JSON.stringify(cart));
+                    localStorage.setItem(key, JSON.stringify(cart));
                     alert("Added to cart!");
                   }}
                   className="ml-4 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs mt-2"

@@ -2,46 +2,54 @@ import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { PAYHERE_MERCHANT_ID, PAYHERE_SANDBOX } from "../payhereConfig";
 
+
+function getCartKey(user) {
+  return user && user.email ? `cart_${user.email}` : "cart_guest";
+}
+
 function AddToCart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
   const auth = getAuth();
-  const user = auth.currentUser;
+  const [user, setUser] = useState(auth.currentUser);
 
+  // Listen for user changes (login/logout)
   useEffect(() => {
-    // Load cart from localStorage
-    const stored = localStorage.getItem("cart");
+    const unsubscribe = auth.onAuthStateChanged((u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  // Load cart for current user
+  useEffect(() => {
+    const key = getCartKey(user);
+    const stored = localStorage.getItem(key);
     if (stored) setCart(JSON.parse(stored));
+    else setCart([]);
 
     // Load PayHere script safely
-    const loadPayHere = async () => {
-      if (!window.payhere && !document.getElementById("payhere-script")) {
-        const script = document.createElement("script");
-        script.id = "payhere-script";
-        script.async = true;
-
-        // ✅ Use production JS URL (PayHere recommends this for both sandbox and live)
-        script.src = "https://www.payhere.lk/lib/payhere.js";
-
-        script.onload = () => console.log("✅ PayHere script loaded successfully");
-        script.onerror = (err) => {
-          console.error("❌ PayHere script failed to load:", err);
-          setError("Payment gateway failed to load. Please refresh and try again.");
-        };
-
-        document.body.appendChild(script);
-      }
-    };
-
-    loadPayHere();
-  }, []);
+    if (!window.payhere && !document.getElementById("payhere-script")) {
+      const script = document.createElement("script");
+      script.id = "payhere-script";
+      script.async = true;
+      script.src = "https://www.payhere.lk/lib/payhere.js";
+      script.onload = () => console.log("✅ PayHere script loaded successfully");
+      script.onerror = (err) => {
+        console.error("❌ PayHere script failed to load:", err);
+        setError("Payment gateway failed to load. Please refresh and try again.");
+      };
+      document.body.appendChild(script);
+    }
+  }, [user]);
 
   const removeFromCart = (idx) => {
     const updated = cart.filter((_, i) => i !== idx);
     setCart(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
+    const key = getCartKey(user);
+    localStorage.setItem(key, JSON.stringify(updated));
   };
 
   const getTotal = () => {
@@ -58,6 +66,7 @@ function AddToCart() {
     setLoading(true);
     setSuccess(null);
     setError(null);
+
 
     if (!user) {
       setError("You must be logged in to checkout.");
@@ -96,10 +105,12 @@ function AddToCart() {
     };
 
     // PayHere event listeners
+
     window.payhere.onCompleted = function (orderId) {
       setSuccess("Payment successful! Order ID: " + orderId);
       setCart([]);
-      localStorage.removeItem("cart");
+      const key = getCartKey(user);
+      localStorage.removeItem(key);
       setLoading(false);
     };
 

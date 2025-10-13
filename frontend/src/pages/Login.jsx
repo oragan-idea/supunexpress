@@ -45,55 +45,83 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center items-center p-6">
-      <div className="w-full max-w-md bg-white border border-neutral-200 rounded-2xl p-8 shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
-        {error && <p className="text-red-600 mb-4">{error}</p>}
+    <div className="min-h-screen bg-gradient-to-b from-[#CEE2FF] to-white flex flex-col justify-center items-center p-6">
+      {/* Supun Express Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
+          <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
+          <span className="font-light ml-1">EXPRESS</span>
+        </h1>
+        <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
+          Find it. Love it. Get it — Globally.
+        </p>
+      </div>
+
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-2xl p-8 shadow-lg">
+        <h1 className="text-3xl font-bold text-center mb-6 text-[#002E4D]">Welcome Back</h1>
+        <p className="text-[#004F74] text-center mb-6">Sign in to your account</p>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            required
-          />
+          <div>
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border border-[#81BBDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002E4D] focus:border-transparent transition-all"
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border border-[#81BBDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002E4D] focus:border-transparent transition-all"
+              required
+            />
+          </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition disabled:opacity-50"
+            className="w-full py-3 bg-[#002E4D] text-white font-medium rounded-lg hover:bg-[#001223] transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="flex items-center my-6">
+          <div className="flex-1 border-t border-[#81BBDF]"></div>
+          <span className="px-3 text-[#004F74] text-sm">or continue with</span>
+          <div className="flex-1 border-t border-[#81BBDF]"></div>
+        </div>
 
         {/* Google Login */}
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full mt-4 py-3 border text-black font-medium rounded-lg hover:bg-black hover:text-white transition flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-3 border border-[#81BBDF] text-[#002E4D] font-medium rounded-lg hover:bg-[#002E4D] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm hover:shadow-md"
         >
           <img src={googlelogo} alt="Google" className="w-5 h-5"/>
-          Login with Google
+          {loading ? 'Signing in...' : 'Sign in with Google'}
         </button>
 
-        <p className="text-sm text-neutral-500 text-center mt-4">
-          Don’t have an account?{" "}
+        <p className="text-sm text-[#004F74] text-center mt-6">
+          Don't have an account?{" "}
           <span
-            className="text-blue-600 cursor-pointer"
+            className="text-[#002E4D] cursor-pointer font-semibold hover:underline"
             onClick={() => navigate('/signup')}
           >
-            Sign Up
+            Sign up
           </span>
         </p>
       </div>

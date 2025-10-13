@@ -16,24 +16,24 @@ export default function Sidebar() {
   const linkClasses = (path) =>
     `flex items-center p-3 rounded-lg transition-all duration-300 ${
       location.pathname === path
-        ? "bg-black text-white font-medium shadow-md"
-        : "text-neutral-700 hover:bg-neutral-50 hover:shadow-sm"
+        ? "bg-[#002E4D] text-white font-medium shadow-md"
+        : "text-[#004F74] hover:bg-[#CEE2FF] hover:shadow-sm"
     }`;
 
   return (
-    <div className="w-64 h-screen bg-white text-black p-6 fixed left-0 top-0 border-r border-neutral-200 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white to-neutral-50">
+    <div className="w-64 h-screen bg-white text-[#002E4D] p-6 fixed left-0 top-0 border-r border-[#81BBDF] flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white to-[#CEE2FF]/20">
       {/* Subtle texture overlay for luxury feel */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2Utb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNIDAgMCBMIDYwIDYwIE0gNjAgMCBMIDAgNjAiLz48L2c+PC9zdmc+')]"></div>
+      <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDJFNEMiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2Utb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNIDAgMCBMIDYwIDYwIE0gNjAgMCBMIDAgNjAiLz48L2c+PC9zdmc+')]"></div>
       
       {/* Top Section */}
       <div className="relative z-10">
         {/* Logo/Brand */}
         <div className="mb-12 pt-2">
-          <h2 className="text-2xl font-bold tracking-wider uppercase border-b border-neutral-200 pb-3">
-            <span className="bg-black text-white px-2 py-1 mr-1">S</span>UPUN 
+          <h2 className="text-2xl font-bold tracking-wider uppercase border-b border-[#81BBDF] pb-3">
+            <span className="bg-[#002E4D] text-white px-2 py-1 mr-1 ">S</span>UPUN 
             <span className="font-light ml-1">EXPRESS</span>
           </h2>
-          <p className="text-neutral-500 text-xs mt-3 tracking-widest uppercase font-light">Order Products</p>
+          <p className="text-[#004F74] text-xs mt-3 tracking-widest uppercase font-light">Order Products</p>
         </div>
 
         {/* Navigation Links */}
@@ -73,12 +73,12 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom Section */}
-      <div className="border-t border-neutral-200 pt-6 relative z-10">
+      <div className="border-t border-[#81BBDF] pt-6 relative z-10">
         {user ? (
           <>
             {/* User Info */}
-            <Link to='/profile' className="flex items-center gap-3 p-3 text-black rounded-lg mb-4 bg-neutral-50">
-              <div className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full font-bold shadow-sm">
+            <Link to='/profile' className="flex items-center gap-3 p-3 text-[#002E4D] rounded-lg mb-4 bg-[#CEE2FF]/50 border border-[#81BBDF]">
+              <div className="bg-[#002E4D] text-white w-10 h-10 flex items-center justify-center rounded-full font-bold shadow-sm">
                 {user.displayName
                   ? user.displayName[0].toUpperCase()
                   : user.email[0].toUpperCase()}
@@ -87,14 +87,14 @@ export default function Sidebar() {
                 <div className="font-medium truncate text-sm">
                   {user.displayName || "No Name"}
                 </div>
-                <div className="text-xs text-neutral-500 truncate">{user.email}</div>
+                <div className="text-xs text-[#004F74] truncate">{user.email}</div>
               </div>
             </Link>
 
             {/* Sign Out Button */}
             <button
               onClick={logOut}
-              className="w-full border border-black bg-white hover:bg-black hover:text-white text-black py-2.5 rounded-lg text-sm transition-all duration-300 tracking-wide font-light shadow-sm hover:shadow-md"
+              className="w-full border border-[#002E4D] bg-white hover:bg-[#002E4D] hover:text-white text-[#002E4D] py-2.5 rounded-lg text-sm transition-all duration-300 tracking-wide font-light shadow-sm hover:shadow-md"
             >
               Sign Out
             </button>
@@ -103,13 +103,13 @@ export default function Sidebar() {
           <>
             <Link
               to="/signup"
-              className="w-full border border-black bg-black text-white hover:bg-white hover:text-black py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block mb-3"
+              className="w-full border border-[#002E4D] bg-[#002E4D] text-white hover:bg-white hover:text-[#002E4D] py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block mb-3"
             >
               Create Account
             </Link>
             <Link
               to="/login"
-              className="w-full border border-black bg-white text-black hover:bg-black hover:text-white py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block"
+              className="w-full border border-[#002E4D] bg-white text-[#002E4D] hover:bg-[#002E4D] hover:text-white py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block"
             >
               Login
             </Link>

@@ -5,6 +5,8 @@ import Orders from "./pages/Orders";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Profile from "./pages/ProfilePage";
+import Invoice from "./pages/Invoice";
+import AddToCart from "./pages/AddToCart";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/invoice" element={<Invoice />} />
+            <Route path="/cart" element={<AddToCart />} />
           </Routes>
         </div>
       </div>

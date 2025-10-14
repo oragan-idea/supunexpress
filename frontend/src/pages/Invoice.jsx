@@ -6,7 +6,7 @@ function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
 }
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwP8n4qp477Tk5vM3PeFpgfEzNMVC1b7nmrR4SI0J2XT4vTK1EDPzZpED89rz49w8tk/exec"; // Same as admin
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwP8n4qp477Tk5vM3PeFpgfEzNMVC1b7nmrR4SI0J2XT4vTK1EDPzZpED89rz49w8tk/exec";
 
 function Invoice() {
   const [cards, setCards] = useState([]);
@@ -45,66 +45,218 @@ function Invoice() {
     fetchCards();
   }, [auth.currentUser]);
 
-  const linkClasses = (path) => {
-    return window.location.pathname === path
-      ? "text-blue-600 font-semibold"
-      : "text-gray-700";
+  const addToCart = (card) => {
+    const key = getCartKey(user);
+    const cart = JSON.parse(localStorage.getItem(key) || "[]");
+    const exists = cart.some(
+      (item) =>
+        item.productName === card.productName &&
+        item.price === card.price &&
+        item.userEmail === card.userEmail
+    );
+    if (exists) {
+      alert("This product is already in your cart.");
+      return;
+    }
+    cart.push(card);
+    localStorage.setItem(key, JSON.stringify(cart));
+    alert("Added to cart!");
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Your Invoices</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      {!loading && !error && cards.length === 0 && <p>No products pushed by admin yet.</p>}
-      <div className="space-y-6">
-        {cards.map((card, idx) => (
-          <div key={idx} className="bg-white rounded-xl shadow p-6 border border-gray-100">
-            <div className="flex items-center gap-4">
-              {card.imageUrl && <img src={card.imageUrl} alt={card.productName} className="w-24 h-24 object-cover rounded" />}
-              <div>
-                <h2 className="font-bold text-lg">{card.productName}</h2>
-                <p className="text-gray-600">{card.details}</p>
-                <div className="mt-2 text-sm">
-                  <span className="font-semibold">Price:</span> {card.price} <br />
-                  <span className="font-semibold">Shipping:</span> {card.shipping}
+    <div className="min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] text-[#002E4D] relative overflow-hidden">
+      {/* Premium Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      
+      {/* Animated Floating Elements */}
+      <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
+      <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
+      <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500"></div>
+
+      <div className="relative z-10 p-6 flex flex-col min-h-screen">
+        <div className="max-w-6xl mx-auto flex-grow w-full">
+          {/* Premium Header */}
+          <header className="text-center mb-8 py-12">
+            <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
+              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
+              <span className="font-light ml-1">EXPRESS</span>
+            </h1>
+            <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
+              Love It, Shop It - Globally
+            </p>
+          </header>
+
+          {/* Main Content */}
+          <div className="relative">
+            {/* Card Glow Effect */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
+            
+            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+              {/* Card Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 text-[#002E4D] px-6 py-3 rounded-sm shadow-lg">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="font-semibold text-2xl">Product Invoices</span>
                 </div>
-                <a href={card.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mt-2 inline-block">View Product</a>
-                <button
-                  onClick={() => {
-                    const key = getCartKey(user);
-                    const cart = JSON.parse(localStorage.getItem(key) || "[]");
-                    // Prevent duplicate by checking unique productName + price + userEmail
-                    const exists = cart.some(
-                      (item) =>
-                        item.productName === card.productName &&
-                        item.price === card.price &&
-                        item.userEmail === card.userEmail
-                    );
-                    if (exists) {
-                      alert("This product is already in your cart.");
-                      return;
-                    }
-                    cart.push(card);
-                    localStorage.setItem(key, JSON.stringify(cart));
-                    alert("Added to cart!");
-                  }}
-                  className="ml-4 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs mt-2"
-                >
-                  Add to Cart
-                </button>
               </div>
+
+              {/* Loading State */}
+              {loading && (
+                <div className="flex justify-center items-center py-12">
+                  <div className="flex items-center gap-3 text-[#004F74]">
+                    <div className="w-5 h-5 border-2 border-[#002E4D] border-t-transparent rounded-full animate-spin"></div>
+                    Loading your invoices...
+                  </div>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {error}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!loading && !error && cards.length === 0 && (
+                <div className="text-center py-12">
+                  <svg className="w-16 h-16 text-[#81BBDF] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-xl font-semibold text-[#002E4D] mb-2">No Invoices Yet</h3>
+                  <p className="text-[#004F74] mb-6">Your product invoices will appear here once the admin processes your requests.</p>
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Home
+                  </Link>
+                </div>
+              )}
+
+              {/* Product Cards Grid */}
+              {!loading && !error && cards.length > 0 && (
+                <div className="grid gap-6">
+                  {cards.map((card, idx) => (
+                    <div
+                      key={idx}
+                      className="group bg-gradient-to-r from-[#CEE2FF] to-[#E8F2FF] rounded-xl border border-[#81BBDF]/30 hover:border-[#002E4D]/30 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden"
+                    >
+                      <div className="p-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                          {/* Product Image */}
+                          {card.imageUrl && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={card.imageUrl}
+                                alt={card.productName}
+                                className="w-32 h-32 object-cover rounded-xl shadow-md"
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Product Details */}
+                          <div className="flex-1">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                              <div className="flex-1">
+                                <h3 className="text-xl font-bold text-[#002E4D] mb-2">
+                                  {card.productName}
+                                </h3>
+                                <p className="text-[#004F74] mb-4 leading-relaxed">
+                                  {card.details}
+                                </p>
+                                
+                                {/* Pricing Information */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
+                                    <span className="text-sm font-medium text-[#002E4D]">Product Price:</span>
+                                    <span className="text-lg font-bold text-[#004F74]">{card.price} LKR</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
+                                    <span className="text-sm font-medium text-[#002E4D]">Shipping Cost:</span>
+                                    <span className="text-lg font-bold text-[#004F74]">{card.shipping} LKR</span>
+                                  </div>
+                                </div>
+
+                                {/* Total Price */}
+                                <div className="flex items-center gap-2 mb-4 p-3 bg-white/50 rounded-lg border border-[#81BBDF]/20">
+                                  <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
+                                  <span className="text-sm font-medium text-[#002E4D]">Total Amount:</span>
+                                  <span className="text-xl font-bold text-[#002E4D]">
+                                    {(parseFloat(card.price) + parseFloat(card.shipping || 0)).toFixed(2)} LKR
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex flex-col gap-3">
+                                <a
+                                  href={card.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#002E4D] text-white rounded-lg hover:bg-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                  View Product
+                                </a>
+                                <button
+                                  onClick={() => addToCart(card)}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#004F74] to-[#002E4D] text-white rounded-lg hover:from-[#002E4D] hover:to-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                  </svg>
+                                  Add to Cart
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Premium Footer */}
+        <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
+          <div className="max-w-6xl mx-auto">
+            <p className="mb-2 font-medium">SUPUN EXPRESS &copy; {new Date().getFullYear()}</p>
+            <p className="text-xs text-[#81BBDF]">Elevating Global Commerce Through Premium Service</p>
+          </div>
+        </footer>
       </div>
-      <ul className="mt-8">
-        <li>
-          <Link to="/invoice" className={linkClasses("/invoice")}>
-            <span className="mr-2">🧾</span> Invoice
-          </Link>
-        </li>
-      </ul>
+
+      {/* Add custom animations to tailwind config */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

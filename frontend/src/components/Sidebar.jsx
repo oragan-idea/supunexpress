@@ -30,10 +30,12 @@ export default function Sidebar() {
         {/* Logo/Brand */}
         <div className="mb-12 pt-2">
           <h2 className="text-2xl font-bold tracking-wider uppercase border-b border-[#81BBDF] pb-3">
-            <span className="bg-[#002E4D] text-white px-2 py-1 mr-1 ">S</span>UPUN 
+            <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN 
             <span className="font-light ml-1">EXPRESS</span>
           </h2>
-          <p className="text-[#004F74] text-xs mt-3 tracking-widest uppercase font-light">Order Products</p>
+          <p className="text-[#004F74] text-xs mt-3 tracking-widest uppercase font-light">
+            {user ? `Welcome, ${user.displayName || 'User'}` : 'Order Products'}
+          </p>
         </div>
 
         {/* Navigation Links */}
@@ -69,6 +71,7 @@ export default function Sidebar() {
               Orders
             </Link>
           </li>
+
           <li>
             <Link to="/invoice" className={linkClasses("/invoice")}> 
               <svg
@@ -77,11 +80,16 @@ export default function Sidebar() {
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
-                <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-2m-4 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4m10 4h.01" />
+                <path
+                  fillRule="evenodd"
+                  d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+                  clipRule="evenodd"
+                />
               </svg>
-              Invoice
+              Invoices
             </Link>
           </li>
+
           <li>
             <Link to="/cart" className={linkClasses("/cart")}> 
               <svg
@@ -90,11 +98,32 @@ export default function Sidebar() {
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
-                <path d="M16 11V7a4 4 0 00-8 0v4M5 11h10l1 9H4l1-9zm2 0V7a2 2 0 114 0v4" />
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
               </svg>
-              Cart Management
+              Cart
             </Link>
           </li>
+
+          {/* Admin Link - Only show if user is admin */}
+          {user && user.email === "admin@example.com" && (
+            <li>
+              <Link to="/dashboard" className={linkClasses("/dashboard")}>
+                <svg
+                  className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Admin Dashboard
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
 
@@ -103,25 +132,36 @@ export default function Sidebar() {
         {user ? (
           <>
             {/* User Info */}
-            <Link to='/profile' className="flex items-center gap-3 p-3 text-[#002E4D] rounded-lg mb-4 bg-[#CEE2FF]/50 border border-[#81BBDF]">
+            <Link to='/profile' className="flex items-center gap-3 p-3 text-[#002E4D] rounded-lg mb-4 bg-[#CEE2FF]/50 border border-[#81BBDF] hover:bg-[#CEE2FF]/70 transition-all duration-300">
               <div className="bg-[#002E4D] text-white w-10 h-10 flex items-center justify-center rounded-full font-bold shadow-sm">
                 {user.displayName
                   ? user.displayName[0].toUpperCase()
                   : user.email[0].toUpperCase()}
               </div>
-              <div className="overflow-hidden">
+              <div className="overflow-hidden flex-1">
                 <div className="font-medium truncate text-sm">
                   {user.displayName || "No Name"}
                 </div>
                 <div className="text-xs text-[#004F74] truncate">{user.email}</div>
+                {user.email === "admin@example.com" && (
+                  <div className="text-xs bg-[#002E4D] text-white px-1.5 py-0.5 rounded mt-1 inline-block">
+                    Admin
+                  </div>
+                )}
               </div>
+              <svg className="w-4 h-4 text-[#004F74] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
 
             {/* Sign Out Button */}
             <button
               onClick={logOut}
-              className="w-full border border-[#002E4D] bg-white hover:bg-[#002E4D] hover:text-white text-[#002E4D] py-2.5 rounded-lg text-sm transition-all duration-300 tracking-wide font-light shadow-sm hover:shadow-md"
+              className="w-full border border-[#002E4D] bg-white hover:bg-[#002E4D] hover:text-white text-[#002E4D] py-2.5 rounded-lg text-sm transition-all duration-300 tracking-wide font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               Sign Out
             </button>
           </>
@@ -129,18 +169,30 @@ export default function Sidebar() {
           <>
             <Link
               to="/signup"
-              className="w-full border border-[#002E4D] bg-[#002E4D] text-white hover:bg-white hover:text-[#002E4D] py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block mb-3"
+              className="w-full border border-[#002E4D] bg-[#002E4D] text-white hover:bg-white hover:text-[#002E4D] py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block mb-3 font-medium flex items-center justify-center gap-2"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
               Create Account
             </Link>
             <Link
               to="/login"
-              className="w-full border border-[#002E4D] bg-white text-[#002E4D] hover:bg-[#002E4D] hover:text-white py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block"
+              className="w-full border border-[#002E4D] bg-white text-[#002E4D] hover:bg-[#002E4D] hover:text-white py-2.5 rounded-lg text-sm text-center transition-all duration-300 tracking-wide shadow-sm hover:shadow-md block font-medium flex items-center justify-center gap-2"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
               Login
             </Link>
           </>
         )}
+
+        {/* Footer */}
+        <div className="mt-4 text-center">
+          <p className="text-xs text-[#004F74]">Supun Express &copy; {new Date().getFullYear()}</p>
+          <p className="text-[10px] text-[#81BBDF] mt-1">v1.0.0</p>
+        </div>
       </div>
     </div>
   );

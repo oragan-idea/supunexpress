@@ -6,7 +6,7 @@ function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
 }
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwP8n4qp477Tk5vM3PeFpgfEzNMVC1b7nmrR4SI0J2XT4vTK1EDPzZpED89rz49w8tk/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2DZDfsx9QxsNdgb9OeZd5uPbh9-WS9QEQufagoRYO7AnAkM1eECOQhtAoethEwtNF/exec";
 
 function Invoice() {
   const [cards, setCards] = useState([]);
@@ -44,6 +44,57 @@ function Invoice() {
     };
     fetchCards();
   }, [auth.currentUser]);
+
+
+  // Remove last ordered items (COD) from invoice
+
+  // Helper: get persistent removed orders
+  function getRemovedOrders(email) {
+    try {
+      return JSON.parse(localStorage.getItem(`removedOrders_${email}`) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function setRemovedOrders(email, arr) {
+    localStorage.setItem(`removedOrders_${email}` , JSON.stringify(arr));
+  }
+
+  // After fetch, filter out removed orders and update removed list if needed
+  useEffect(() => {
+    if (!user || !Array.isArray(cards) || cards.length === 0) return;
+    // Check for new COD removals
+    const lastOrderedRaw = localStorage.getItem(`lastOrdered_${user.email}`);
+    let removedOrders = getRemovedOrders(user.email);
+    let changed = false;
+    if (lastOrderedRaw) {
+      try {
+        const lastOrdered = JSON.parse(lastOrderedRaw);
+        if (Array.isArray(lastOrdered) && lastOrdered.length > 0) {
+          lastOrdered.forEach(lo => {
+            const key = `${lo.productName}|${lo.price}|${lo.userEmail}`;
+            if (!removedOrders.includes(key)) {
+              removedOrders.push(key);
+              changed = true;
+            }
+          });
+          localStorage.removeItem(`lastOrdered_${user.email}`);
+        }
+      } catch {}
+    }
+    if (changed) setRemovedOrders(user.email, removedOrders);
+    // Only update cards if filtering actually changes the array
+    if (removedOrders.length > 0) {
+      const filtered = cards.filter(card => {
+        const key = `${card.productName}|${card.price}|${card.userEmail}`;
+        return !removedOrders.includes(key);
+      });
+      if (filtered.length !== cards.length) {
+        setCards(filtered);
+      }
+    }
+  }, [user, cards]);
 
   const addToCart = (card) => {
     const key = getCartKey(user);

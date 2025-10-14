@@ -1,18 +1,81 @@
 import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { PAYHERE_MERCHANT_ID, PAYHERE_SANDBOX } from "../payhereConfig";
 
 function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
 }
 
+
 function AddToCart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("payhere"); // "payhere" or "cod"
   const auth = getAuth();
   const [user, setUser] = useState(auth.currentUser);
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [addressChecked, setAddressChecked] = useState(false); // To avoid premature alert
+
+  // Listen for user changes (login/logout) and fetch latest profile info
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (u) => {
+      setUser(u);
+      setAddressChecked(false);
+      if (u) {
+        await u.reload();
+        let addr = "";
+        let city = "";
+        let ph = "";
+        // Try Auth fields
+        if (u.providerData && u.providerData.length > 0) {
+          const pd = u.providerData[0];
+          addr = pd.address || "";
+          city = pd.city || "";
+          ph = pd.phoneNumber || pd.phone || "";
+        }
+        if (!addr && u.address) addr = u.address;
+        if (!city && u.city) city = u.city;
+        if (!ph && u.phoneNumber) ph = u.phoneNumber;
+        // Try custom claims
+        try {
+          const token = await u.getIdTokenResult();
+          if (token && token.claims) {
+            if (!addr && token.claims.address) addr = token.claims.address;
+            if (!city && token.claims.city) city = token.claims.city;
+            if (!ph && token.claims.phone) ph = token.claims.phone;
+          }
+        } catch {}
+        // If still missing, try Firestore
+        if ((!addr || !ph) && u.email) {
+          try {
+            const db = getFirestore();
+            const userDoc = await getDoc(doc(db, "users", u.uid));
+            if (userDoc.exists()) {
+              const data = userDoc.data();
+              if (!addr && data.address) addr = data.address;
+              if (!city && data.city) city = data.city;
+              if (!ph && data.phone) ph = data.phone;
+            }
+          } catch {}
+        }
+        // Combine address + city for delivery address
+        let deliveryAddress = addr;
+        if (city && !addr.includes(city)) deliveryAddress = addr ? `${addr}, ${city}` : city;
+        setAddress(deliveryAddress || "");
+        setPhone(ph || "");
+        setAddressChecked(true);
+      } else {
+        setAddress("");
+        setPhone("");
+        setAddressChecked(true);
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   // Listen for user changes (login/logout)
   useEffect(() => {
@@ -63,14 +126,105 @@ function AddToCart() {
     return (parseFloat(getSubtotal()) + parseFloat(getShippingTotal())).toFixed(2);
   };
 
+
+  // Google Apps Script endpoint for placed orders
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_xG3fwQKy5YxOtjpDpj4-A_XyL490tJqhCfNg_q_Vl4mMD2VYAqx3qWFJVdwHR615/exec";
+
+  // Helper to send placed order to Google Sheet
+  const sendPlacedOrder = async (orderDetails) => {
+    try {
+      // Add timestamp for Google Sheet
+      const payload = {
+        Timestamp: new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }),
+        "User Name": orderDetails.userName,
+        Address: orderDetails.address,
+        Phone: orderDetails.phone,
+        Email: orderDetails.email,
+        "Order Description": orderDetails.orderDescription,
+        "Payment Method": orderDetails.paymentMethod,
+        "Order Total": orderDetails.orderTotal,
+      };
+      // Try POST (preferred)
+      let response;
+      try {
+        response = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } catch (err) {
+        // If CORS/network error, try GET fallback for debugging
+        const params = new URLSearchParams(payload).toString();
+        response = await fetch(APPS_SCRIPT_URL + "?" + params, { method: "GET" });
+      }
+      if (!response.ok) {
+        const text = await response.text();
+        alert("Order placed, but failed to record in Google Sheet. Please contact support.");
+        console.error("Google Sheet API error:", text);
+      } else {
+        let data = null;
+        try { data = await response.json(); } catch {}
+        if (!data || data.status !== "success") {
+          alert("Order placed, but failed to record in Google Sheet. Please contact support.");
+          console.error("Google Sheet API returned error:", data);
+        }
+      }
+    } catch (e) {
+      alert("Order placed, but failed to record in Google Sheet. Please contact support.\n" + (e && e.message ? e.message : ""));
+      console.error("Failed to send order to Google Sheet", e);
+    }
+  };
+
   const handleCheckout = () => {
     setLoading(true);
     setSuccess(null);
     setError(null);
 
+
     if (!user) {
       setError("You must be logged in to checkout.");
       setLoading(false);
+      return;
+    }
+    // Check for address/phone in user profile
+    if (addressChecked && (!address.trim() || !phone.trim())) {
+      alert("Please update your account to include your delivery address and phone number before placing an order.");
+      setError("Missing address or phone. Update your account profile.");
+      setLoading(false);
+      return;
+    }
+
+    // Prepare order details for Google Sheet
+
+    // Helper to send each product as a separate row
+    const sendAllProducts = async () => {
+      for (const item of cart) {
+        const orderDetails = {
+          userName: user.displayName || user.email.split("@") [0],
+          address,
+          phone,
+          email: user.email,
+          orderDescription: `${item.productName} (LKR ${item.price})`,
+          paymentMethod,
+          orderTotal: item.price,
+        };
+        await sendPlacedOrder(orderDetails);
+      }
+    };
+
+    if (paymentMethod === "cod") {
+      // Simulate COD order placement
+      setTimeout(async () => {
+        setSuccess("Order placed successfully! (Cash on Delivery)");
+        // Save last ordered items for invoice removal
+        const key = getCartKey(user);
+        localStorage.setItem(`lastOrdered_${user.email}`, JSON.stringify(cart));
+        setCart([]);
+        localStorage.removeItem(key);
+        setLoading(false);
+        // Send each product to Google Sheet
+        await sendAllProducts();
+      }, 1200);
       return;
     }
 
@@ -98,19 +252,21 @@ function AddToCart() {
       first_name: user.displayName || user.email.split("@")[0],
       last_name: "",
       email: user.email,
-      phone: "",
-      address: "",
+      phone,
+      address,
       city: "",
       country: "Sri Lanka",
     };
 
     // PayHere event listeners
-    window.payhere.onCompleted = function (orderId) {
+    window.payhere.onCompleted = async function (orderId) {
       setSuccess("Payment successful! Order ID: " + orderId);
       setCart([]);
       const key = getCartKey(user);
       localStorage.removeItem(key);
       setLoading(false);
+      // Send each product to Google Sheet
+      await sendAllProducts();
     };
 
     window.payhere.onDismissed = function () {
@@ -322,7 +478,7 @@ function AddToCart() {
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-5"></div>
                     
-                    <div className="relative bg-white/95 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-2xl">
+                    <div className="relative bg-white/95 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-2xl" style={{ minWidth: '340px', maxWidth: '420px', margin: '0 auto' }}>
                       <h3 className="text-xl font-bold text-[#002E4D] mb-6 flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -345,23 +501,53 @@ function AddToCart() {
                         </div>
                       </div>
 
-                      {/* Checkout Button */}
+
+
+                      {/* Payment Method Selection */}
+                      <div className="mb-6">
+                        <div className="font-semibold mb-2">Payment Method</div>
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+                          <label className={`flex items-center border rounded-lg px-6 py-3 cursor-pointer flex-1 min-w-0 justify-center text-base font-semibold transition-all duration-200 ${paymentMethod === "payhere" ? "border-blue-600 bg-blue-50" : "border-gray-300"}`} style={{maxWidth:'100%'}}>
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value="payhere"
+                              checked={paymentMethod === "payhere"}
+                              onChange={() => setPaymentMethod("payhere")}
+                              className="mr-2 accent-blue-600 flex-shrink-0"
+                            />
+                            <img src="https://www.payhere.lk/downloads/images/payhere_square.svg" alt="PayHere" className="w-6 h-6 mr-2 flex-shrink-0" />
+                          </label>
+                          <label className={`flex items-center border rounded-lg px-6 py-3 cursor-pointer flex-1 min-w-0 justify-center text-base font-semibold transition-all duration-200 ${paymentMethod === "cod" ? "border-green-600 bg-green-50" : "border-gray-300"}`} style={{maxWidth:'100%'}}>
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value="cod"
+                              checked={paymentMethod === "cod"}
+                              onChange={() => setPaymentMethod("cod")}
+                              className="mr-2 accent-green-600 flex-shrink-0"
+                            />
+                            <span className="mr-2 flex-shrink-0" role="img" aria-label="Cash">💵</span>
+                            <span className="font-semibold">Cash on Delivery</span>
+                          </label>
+                        </div>
+                      </div>
                       <button
                         onClick={handleCheckout}
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-[#004F74] to-[#002E4D] hover:from-[#002E4D] hover:to-[#001223] text-white font-semibold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                        className="w-full font-semibold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 bg-gradient-to-r from-[#004F74] to-[#002E4D] hover:from-[#002E4D] hover:to-[#001223] text-white"
                       >
                         {loading ? (
                           <>
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Processing...</span>
+                            <span>Placing Order...</span>
                           </>
                         ) : (
                           <>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                             </svg>
-                            <span>Secure Checkout</span>
+                            <span>Place Order</span>
                           </>
                         )}
                       </button>

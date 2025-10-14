@@ -69,6 +69,32 @@ export default function Sidebar() {
               Orders
             </Link>
           </li>
+          <li>
+            <Link to="/invoice" className={linkClasses("/invoice")}> 
+              <svg
+                className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-2m-4 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4m10 4h.01" />
+              </svg>
+              Invoice
+            </Link>
+          </li>
+          <li>
+            <Link to="/cart" className={linkClasses("/cart")}> 
+              <svg
+                className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M16 11V7a4 4 0 00-8 0v4M5 11h10l1 9H4l1-9zm2 0V7a2 2 0 114 0v4" />
+              </svg>
+              Cart Management
+            </Link>
+          </li>
         </ul>
       </div>
 

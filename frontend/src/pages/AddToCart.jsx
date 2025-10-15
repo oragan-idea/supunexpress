@@ -1,26 +1,63 @@
+// AddToCart.js
 import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, addDoc } from "firebase/firestore";
 import { PAYHERE_MERCHANT_ID, PAYHERE_SANDBOX } from "../payhereConfig";
 
 function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
 }
 
+// Helper to send placed order to Google Sheet
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_xG3fwQKy5YxOtjpDpj4-A_XyL490tJqhCfNg_q_Vl4mMD2VYAqx3qWFJVdwHR615/exec";
+
+const sendPlacedOrder = async (orderDetails) => {
+  try {
+    const payload = {
+      Timestamp: new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }),
+      "User Name": orderDetails.userName,
+      Address: orderDetails.address,
+      Phone: orderDetails.phone,
+      Email: orderDetails.email,
+      "Order Description": orderDetails.orderDescription,
+      "Payment Method": orderDetails.paymentMethod,
+      "Order Total": orderDetails.orderTotal,
+    };
+    
+    let response;
+    try {
+      response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      const params = new URLSearchParams(payload).toString();
+      response = await fetch(APPS_SCRIPT_URL + "?" + params, { method: "GET" });
+    }
+    
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Google Sheet API error:", text);
+    }
+  } catch (e) {
+    console.error("Failed to send order to Google Sheet", e);
+  }
+};
 
 function AddToCart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("payhere"); // "payhere" or "cod"
+  const [paymentMethod, setPaymentMethod] = useState("payhere");
   const auth = getAuth();
   const [user, setUser] = useState(auth.currentUser);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [addressChecked, setAddressChecked] = useState(false); // To avoid premature alert
+  const [addressChecked, setAddressChecked] = useState(false);
 
-  // Listen for user changes (login/logout) and fetch latest profile info
+  // Listen for user changes and fetch profile info
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (u) => {
       setUser(u);
@@ -30,7 +67,7 @@ function AddToCart() {
         let addr = "";
         let city = "";
         let ph = "";
-        // Try Auth fields
+        
         if (u.providerData && u.providerData.length > 0) {
           const pd = u.providerData[0];
           addr = pd.address || "";
@@ -40,7 +77,7 @@ function AddToCart() {
         if (!addr && u.address) addr = u.address;
         if (!city && u.city) city = u.city;
         if (!ph && u.phoneNumber) ph = u.phoneNumber;
-        // Try custom claims
+        
         try {
           const token = await u.getIdTokenResult();
           if (token && token.claims) {
@@ -49,7 +86,7 @@ function AddToCart() {
             if (!ph && token.claims.phone) ph = token.claims.phone;
           }
         } catch {}
-        // If still missing, try Firestore
+        
         if ((!addr || !ph) && u.email) {
           try {
             const db = getFirestore();
@@ -62,7 +99,7 @@ function AddToCart() {
             }
           } catch {}
         }
-        // Combine address + city for delivery address
+        
         let deliveryAddress = addr;
         if (city && !addr.includes(city)) deliveryAddress = addr ? `${addr}, ${city}` : city;
         setAddress(deliveryAddress || "");
@@ -77,14 +114,6 @@ function AddToCart() {
     return () => unsubscribe();
   }, [auth]);
 
-  // Listen for user changes (login/logout)
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((u) => {
-      setUser(u);
-    });
-    return () => unsubscribe();
-  }, [auth]);
-
   // Load cart for current user
   useEffect(() => {
     const key = getCartKey(user);
@@ -92,7 +121,6 @@ function AddToCart() {
     if (stored) setCart(JSON.parse(stored));
     else setCart([]);
 
-    // Load PayHere script safely
     if (!window.payhere && !document.getElementById("payhere-script")) {
       const script = document.createElement("script");
       script.id = "payhere-script";
@@ -126,52 +154,51 @@ function AddToCart() {
     return (parseFloat(getSubtotal()) + parseFloat(getShippingTotal())).toFixed(2);
   };
 
-
-  // Google Apps Script endpoint for placed orders
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_xG3fwQKy5YxOtjpDpj4-A_XyL490tJqhCfNg_q_Vl4mMD2VYAqx3qWFJVdwHR615/exec";
-
-  // Helper to send placed order to Google Sheet
-  const sendPlacedOrder = async (orderDetails) => {
+  // Save order to Firestore
+  const saveOrderToFirestore = async (payhereOrderId = null) => {
     try {
-      // Add timestamp for Google Sheet
-      const payload = {
-        Timestamp: new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }),
-        "User Name": orderDetails.userName,
-        Address: orderDetails.address,
-        Phone: orderDetails.phone,
-        Email: orderDetails.email,
-        "Order Description": orderDetails.orderDescription,
-        "Payment Method": orderDetails.paymentMethod,
-        "Order Total": orderDetails.orderTotal,
+      const db = getFirestore();
+      const ordersRef = collection(db, "orders");
+      
+      const orderData = {
+        userId: user.uid,
+        userName: user.displayName || user.email.split("@")[0],
+        userEmail: user.email,
+        address: address,
+        phone: phone,
+        items: cart,
+        subtotal: getSubtotal(),
+        shipping: getShippingTotal(),
+        total: getTotal(),
+        paymentMethod: paymentMethod,
+        status: paymentMethod === "cod" ? "confirmed" : "paid",
+        orderId: "ORDER_" + Date.now(),
+        timestamp: new Date(),
+        payhereOrderId: payhereOrderId,
       };
-      // Try POST (preferred)
-      let response;
-      try {
-        response = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-      } catch (err) {
-        // If CORS/network error, try GET fallback for debugging
-        const params = new URLSearchParams(payload).toString();
-        response = await fetch(APPS_SCRIPT_URL + "?" + params, { method: "GET" });
-      }
-      if (!response.ok) {
-        const text = await response.text();
-        alert("Order placed, but failed to record in Google Sheet. Please contact support.");
-        console.error("Google Sheet API error:", text);
-      } else {
-        let data = null;
-        try { data = await response.json(); } catch {}
-        if (!data || data.status !== "success") {
-          alert("Order placed, but failed to record in Google Sheet. Please contact support.");
-          console.error("Google Sheet API returned error:", data);
-        }
-      }
-    } catch (e) {
-      alert("Order placed, but failed to record in Google Sheet. Please contact support.\n" + (e && e.message ? e.message : ""));
-      console.error("Failed to send order to Google Sheet", e);
+
+      const docRef = await addDoc(ordersRef, orderData);
+      console.log("Order saved with ID: ", docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error("Error saving order to Firestore: ", error);
+      throw error;
+    }
+  };
+
+  // Send all products to Google Sheet
+  const sendAllProducts = async () => {
+    for (const item of cart) {
+      const orderDetails = {
+        userName: user.displayName || user.email.split("@")[0],
+        address,
+        phone,
+        email: user.email,
+        orderDescription: `${item.productName} (LKR ${item.price})`,
+        paymentMethod,
+        orderTotal: item.price,
+      };
+      await sendPlacedOrder(orderDetails);
     }
   };
 
@@ -180,13 +207,12 @@ function AddToCart() {
     setSuccess(null);
     setError(null);
 
-
     if (!user) {
       setError("You must be logged in to checkout.");
       setLoading(false);
       return;
     }
-    // Check for address/phone in user profile
+
     if (addressChecked && (!address.trim() || !phone.trim())) {
       alert("Please update your account to include your delivery address and phone number before placing an order.");
       setError("Missing address or phone. Update your account profile.");
@@ -194,36 +220,32 @@ function AddToCart() {
       return;
     }
 
-    // Prepare order details for Google Sheet
-
-    // Helper to send each product as a separate row
-    const sendAllProducts = async () => {
-      for (const item of cart) {
-        const orderDetails = {
-          userName: user.displayName || user.email.split("@") [0],
-          address,
-          phone,
-          email: user.email,
-          orderDescription: `${item.productName} (LKR ${item.price})`,
-          paymentMethod,
-          orderTotal: item.price,
-        };
-        await sendPlacedOrder(orderDetails);
-      }
-    };
-
-    if (paymentMethod === "cod") {
-      // Simulate COD order placement
-      setTimeout(async () => {
-        setSuccess("Order placed successfully! (Cash on Delivery)");
-        // Save last ordered items for invoice removal
+    const processOrder = async (payhereOrderId = null) => {
+      try {
+        await saveOrderToFirestore(payhereOrderId);
+        await sendAllProducts();
+        
         const key = getCartKey(user);
         localStorage.setItem(`lastOrdered_${user.email}`, JSON.stringify(cart));
         setCart([]);
         localStorage.removeItem(key);
+        
+        return true;
+      } catch (error) {
+        console.error("Order processing error:", error);
+        return false;
+      }
+    };
+
+    if (paymentMethod === "cod") {
+      setTimeout(async () => {
+        const success = await processOrder();
+        if (success) {
+          setSuccess("Order placed successfully! (Cash on Delivery)");
+        } else {
+          setError("Failed to place order. Please try again.");
+        }
         setLoading(false);
-        // Send each product to Google Sheet
-        await sendAllProducts();
       }, 1200);
       return;
     }
@@ -234,7 +256,6 @@ function AddToCart() {
       return;
     }
 
-    // Build order
     const order_id = "ORDER_" + Date.now();
     const items = cart.map((item) => item.productName).join(", ");
     const amount = getTotal();
@@ -258,15 +279,14 @@ function AddToCart() {
       country: "Sri Lanka",
     };
 
-    // PayHere event listeners
     window.payhere.onCompleted = async function (orderId) {
-      setSuccess("Payment successful! Order ID: " + orderId);
-      setCart([]);
-      const key = getCartKey(user);
-      localStorage.removeItem(key);
+      const success = await processOrder(orderId);
+      if (success) {
+        setSuccess("Payment successful! Order ID: " + orderId);
+      } else {
+        setError("Payment successful but failed to save order. Please contact support.");
+      }
       setLoading(false);
-      // Send each product to Google Sheet
-      await sendAllProducts();
     };
 
     window.payhere.onDismissed = function () {
@@ -279,7 +299,6 @@ function AddToCart() {
       setLoading(false);
     };
 
-    // Start payment
     try {
       window.payhere.startPayment(payment);
     } catch (err) {
@@ -291,10 +310,8 @@ function AddToCart() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8F4FF] via-[#F0F8FF] to-[#E3F2FD] text-[#002E4D] relative overflow-hidden">
-      {/* Shopping Cart Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/3 via-transparent to-[#81BBDF]/8"></div>
       
-      {/* Cart-themed Floating Elements */}
       <div className="absolute top-10 right-20 w-8 h-8 bg-[#002E4D]/10 rounded-full animate-bounce">
         <div className="w-4 h-4 bg-[#002E4D]/20 rounded-full absolute top-1 left-1"></div>
       </div>
@@ -303,7 +320,6 @@ function AddToCart() {
       </div>
       <div className="absolute bottom-40 right-10 w-10 h-6 bg-[#004F74]/15 rounded-full animate-pulse delay-1000"></div>
       
-      {/* Shopping Bag Silhouette */}
       <div className="absolute bottom-10 left-10 opacity-5">
         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
           <path d="M19 7h-3V6a4 4 0 00-8 0v1H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2zm-9-1a2 2 0 014 0v1h-4V6z"/>
@@ -312,7 +328,6 @@ function AddToCart() {
 
       <div className="relative z-10 p-6 flex flex-col min-h-screen">
         <div className="max-w-6xl mx-auto flex-grow w-full">
-          {/* Cart-themed Header */}
           <header className="text-center mb-8 py-12">
             <div className="relative inline-block">
               <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
@@ -325,15 +340,12 @@ function AddToCart() {
             </p>
           </header>
 
-          {/* Main Cart Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items Section */}
             <div className="lg:col-span-2">
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-5"></div>
                 
                 <div className="relative bg-white/95 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-2xl">
-                  {/* Cart Header */}
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#81BBDF]/30">
                     <h2 className="text-2xl font-bold text-[#002E4D] flex items-center gap-3">
                       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,7 +370,6 @@ function AddToCart() {
                     )}
                   </div>
 
-                  {/* Empty Cart State */}
                   {cart.length === 0 && (
                     <div className="text-center py-16">
                       <div className="w-24 h-24 bg-gradient-to-br from-[#CEE2FF] to-[#E8F2FF] rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg">
@@ -394,7 +405,6 @@ function AddToCart() {
                     </div>
                   )}
 
-                  {/* Cart Items */}
                   {cart.length > 0 && (
                     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                       {cart.map((item, idx) => (
@@ -403,7 +413,6 @@ function AddToCart() {
                           className="group bg-gradient-to-r from-white to-[#F8FBFF] rounded-xl border-2 border-[#E8F2FF] hover:border-[#81BBDF] transition-all duration-300 shadow-sm hover:shadow-lg p-4"
                         >
                           <div className="flex gap-4">
-                            {/* Product Image */}
                             {item.imageUrl && (
                               <div className="flex-shrink-0 relative">
                                 <img
@@ -417,7 +426,6 @@ function AddToCart() {
                               </div>
                             )}
                             
-                            {/* Product Details */}
                             <div className="flex-1 min-w-0">
                               <h3 className="font-bold text-[#002E4D] text-lg mb-1 truncate">
                                 {item.productName}
@@ -471,7 +479,6 @@ function AddToCart() {
               </div>
             </div>
 
-            {/* Order Summary Section */}
             {cart.length > 0 && (
               <div className="lg:col-span-1">
                 <div className="sticky top-6">
@@ -501,9 +508,6 @@ function AddToCart() {
                         </div>
                       </div>
 
-
-
-                      {/* Payment Method Selection */}
                       <div className="mb-6">
                         <div className="font-semibold mb-2">Payment Method</div>
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
@@ -552,7 +556,6 @@ function AddToCart() {
                         )}
                       </button>
 
-                      {/* Security Badge */}
                       <div className="mt-4 text-center">
                         <div className="inline-flex items-center gap-2 text-xs text-[#004F74] bg-[#F0F8FF] px-3 py-2 rounded-lg">
                           <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -568,7 +571,6 @@ function AddToCart() {
             )}
           </div>
 
-          {/* Success/Error Messages */}
           {(success || error) && (
             <div className="mt-8 max-w-2xl mx-auto">
               {success && (
@@ -595,7 +597,6 @@ function AddToCart() {
           )}
         </div>
 
-        {/* Premium Footer */}
         <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
           <div className="max-w-6xl mx-auto">

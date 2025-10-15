@@ -30,64 +30,128 @@ function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#CEE2FF] to-white p-6">
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-2xl p-8 shadow-lg flex flex-col items-center">
-        {/* Supun Express Header */}
+    <div className="min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] text-[#002E4D] relative overflow-hidden">
+      {/* Premium Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      
+      {/* Animated Floating Elements */}
+      <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
+      <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
+      <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500"></div>
+
+      <div className="relative z-10 flex flex-col justify-center items-center min-h-screen p-6">
+        {/* Premium Header */}
         <header className="text-center mb-8">
-          <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
-            <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
-            <span className="font-light ml-1">EXPRESS</span>
-          </h1>
-          <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
-            Admin Portal
-          </p>
+          <div className="relative inline-block mb-4">
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-2xl blur-lg opacity-10"></div>
+            <h1 className="text-5xl font-bold tracking-wider uppercase relative">
+              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
+              <span className="font-light ml-1">EXPRESS</span>
+            </h1>
+          </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+        {/* Premium Admin Login Card */}
+        <div className="relative w-full max-w-md">
+          {/* Card Glow Effect */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
           
-          <div>
-            <input
-              type="email"
-              placeholder="Admin email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-[#81BBDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002E4D] focus:border-transparent transition-all"
-            />
-          </div>
-          
-          <div>
-            <input
-              type="password"
-              placeholder="Admin password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-[#81BBDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002E4D] focus:border-transparent transition-all"
-            />
-          </div>
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 bg-[#002E4D] hover:bg-[#001223] text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Authenticating...
+          <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {error}
+                </div>
               </div>
-            ) : (
-              "Access Admin Panel"
             )}
-          </button>
-        </form>
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-xl blur-sm opacity-10"></div>
+                  <input
+                    type="email"
+                    placeholder="Enter admin email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
+                  />
+                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-xl blur-sm opacity-10"></div>
+                  <input
+                    type="password"
+                    placeholder="Enter admin password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
+                  />
+                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+              </div>
+
+
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#002E4D] to-[#004F74] hover:from-[#001223] hover:to-[#002E4D] text-white font-semibold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Verifying Credentials...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>Access Admin Dashboard</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Security Footer */}
+        <div className="mt-8 text-center max-w-md">
+          <p className="text-xs text-[#004F74]/70 flex items-center justify-center gap-2">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            All access is logged and monitored for security purposes
+          </p>
+        </div>
       </div>
+
+      {/* Add custom animations to tailwind config */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

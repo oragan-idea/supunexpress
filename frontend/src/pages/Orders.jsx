@@ -70,10 +70,19 @@ const Orders = () => {
     );
   }
 
+  const uniqueOrders = [];
+  const seenOrderIds = new Set();
+  for (const order of orders) {
+    if (!seenOrderIds.has(order.orderId)) {
+      uniqueOrders.push(order);
+      seenOrderIds.add(order.orderId);
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
       <h2 className="text-2xl font-bold mb-6 text-[#002E4D]">Your Orders</h2>
-      {orders.length === 0 ? (
+      {uniqueOrders.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
           <svg className="mx-auto mb-4 w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -83,7 +92,7 @@ const Orders = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {orders.map(order => (
+          {uniqueOrders.map(order => (
             <div key={order.id} className="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="font-semibold text-[#002E4D] text-lg">{order.userName || order.userEmail}</div>

@@ -27,6 +27,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("pending"); // "pending", "sent", or "orders"
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState(null);
+  const [pushDisabled, setPushDisabled] = useState({});
 
   // Fetch links and sent invoices on load
   useEffect(() => {
@@ -204,16 +205,70 @@ const AdminDashboard = () => {
         alert("User UID not found for this order.");
         return;
       }
-      await addDoc(collection(db, "orders"), {
-        ...order,
-        userId,
-        timestamp: new Date(),
-      });
-      alert("Order pushed to user's dashboard!");
+
+      // Find the user's order by orderId and userId
+      const ordersRef = collection(db, "orders");
+      const q = query(
+        ordersRef,
+        where("orderId", "==", order.orderId),
+        where("userId", "==", userId)
+      );
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        // Update the existing order's status
+        const docRef = doc(db, "orders", snapshot.docs[0].id);
+        await updateDoc(docRef, {
+          status: order.status,
+          timestamp: new Date(),
+        });
+        alert("Order status updated for user!");
+      } else {
+        // If not found, create a new order
+        await addDoc(collection(db, "orders"), {
+          ...order,
+          userId,
+          timestamp: new Date(),
+        });
+        alert("Order pushed to user's dashboard!");
+      }
     } catch (err) {
-      alert("Failed to push order: " + err.message);
+      alert("Failed to push/update order: " + err.message);
     }
   };
+
+  const isPushDisabled = async (order) => {
+    const db = getFirestore();
+    let userId = order.userId;
+    if (!userId && order.userEmail) {
+      userId = await getUserUidByEmail(order.userEmail);
+    }
+    if (!userId) return true;
+    const ordersRef = collection(db, "orders");
+    const q = query(
+      ordersRef,
+      where("orderId", "==", order.orderId),
+      where("userId", "==", userId)
+    );
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const existingOrder = snapshot.docs[0].data();
+      return existingOrder.status === order.status;
+    }
+    return false;
+  };
+
+  // Update pushDisabled when orders change
+  useEffect(() => {
+    const checkAll = async () => {
+      const result = {};
+      for (const order of orders) {
+        result[order.id] = await isPushDisabled(order);
+      }
+      setPushDisabled(result);
+    };
+    if (orders.length > 0) checkAll();
+  }, [orders]);
 
   return (
     <div className="flex">
@@ -544,10 +599,11 @@ const AdminDashboard = () => {
                         <option>Delivered</option>
                       </select>
                       <button
-                        className="ml-2 px-3 py-1 bg-[#002E4D] text-white rounded text-xs hover:bg-[#004F74] transition"
+                        className={`ml-2 px-3 py-1 rounded text-xs transition ${pushDisabled[order.id] ? "bg-gray-400 cursor-not-allowed" : "bg-[#002E4D] text-white hover:bg-[#004F74]"}`}
                         onClick={() => handlePushOrder(order)}
+                        disabled={pushDisabled[order.id]}
                       >
-                        Push
+                        {pushDisabled[order.id] ? "Pushed" : "Push"}
                       </button>
                     </div>
                   </div>

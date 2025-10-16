@@ -100,92 +100,111 @@ const OrderSkeleton = () => (
 const OrderCard = ({ order, onClick }) => {
   return (
     <div
-      className="group bg-gradient-to-r from-[#CEE2FF] to-[#E8F2FF] rounded-xl border border-[#81BBDF]/30 hover:border-[#002E4D]/30 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
+      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
       onClick={onClick}
     >
-      <div className="p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex-1">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-3">
-              <div>
-                <h3 className="font-bold text-xl text-[#002E4D]">
-                  {order.items?.[0]?.productName || "Unnamed Product"}
-                </h3>
-                <div className="text-sm text-[#004F74] font-mono mt-1">
-                  {order.orderId}
-                </div>
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+        {/* Left Section - Order Info */}
+        <div className="flex-1 space-y-4">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-semibold text-[#002E4D] mb-1">
+                {order.items?.[0]?.productName || "Unnamed Product"}
+                {order.items?.length > 1 && ` + ${order.items.length - 1} more`}
+              </h3>
+              <div className="text-sm text-[#004F74] font-mono">
+                {order.orderId}
               </div>
-              <div className="flex justify-center">
-                <StatusBadge status={order.status} />
+            </div>
+            <StatusBadge status={order.status} />
+          </div>
+
+          {/* Order Items Preview */}
+          {order.items && order.items.length > 0 && (
+            <div className="space-y-3">
+              {order.items.slice(0, 2).map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  {item.imageUrl && (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-[#002E4D]">
+                      {item.productName}
+                    </div>
+                  </div>
+                  <div className="text-sm text-[#002E4D] font-semibold">
+                    LKR {item.price?.toLocaleString()}
+                  </div>
+                </div>
+              ))}
+              {order.items.length > 2 && (
+                <div className="text-sm text-[#004F74] text-center">
+                  + {order.items.length - 2} more items
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Order Details */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide mb-1">
+                Payment
+              </div>
+              <div className="text-[#004F74] font-medium capitalize">
+                {order.paymentMethod?.toUpperCase() || "N/A"}
               </div>
             </div>
 
-            {/* Order Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-              <div className="space-y-1">
-                <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide">
-                  Payment
-                </div>
-                <div className="text-[#004F74] font-medium capitalize">
-                  {order.paymentMethod?.toUpperCase() || "N/A"}
-                </div>
+            <div>
+              <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide mb-1">
+                Date
               </div>
-
-              <div className="space-y-1">
-                <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide">
-                  Date
-                </div>
-                <div className="text-[#004F74]">
-                  {order.timestamp?.toDate
-                    ? order.timestamp.toDate().toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : new Date(order.timestamp).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                </div>
+              <div className="text-[#004F74]">
+                {order.timestamp?.toDate
+                  ? order.timestamp.toDate().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : new Date(order.timestamp).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
               </div>
+            </div>
 
-              <div className="space-y-1">
-                <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide">
-                  Time
-                </div>
-                <div className="text-[#004F74]">
-                  {order.timestamp?.toDate
-                    ? order.timestamp.toDate().toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : new Date(order.timestamp).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                </div>
+            <div>
+              <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide mb-1">
+                Items
               </div>
-
-              <div className="space-y-1">
-                <div className="font-medium text-[#002E4D] text-xs uppercase tracking-wide">
-                  Items
-                </div>
-                <div className="text-[#004F74] font-medium">
-                  {order.items?.length || 1} item
-                  {order.items?.length !== 1 ? "s" : ""}
-                </div>
+              <div className="text-[#004F74] font-medium">
+                {order.items?.length || 1} item
+                {order.items?.length !== 1 ? "s" : ""}
               </div>
             </div>
           </div>
+          <div className="font-bold">Order Details</div>
+        </div>
 
-          {/* Total Amount */}
-          <div className="mt-6 lg:mt-0 lg:ml-8 lg:text-right">
-            <div className="text-2xl font-bold text-[#002E4D]">
-              LKR {order.total?.toLocaleString()}
-            </div>
+        {/* Right Section - Total */}
+        <div className="lg:text-right">
+          <div className="text-sm text-[#004F74] mt-1">Total Amount</div>
+          <div className="text-2xl font-bold text-[#002E4D]">
+            LKR {order.total?.toLocaleString()}
           </div>
+          <button
+            onClick={() => setSelectedOrder(order)} // You'll manage this state
+            className="mt-4 bg-[#004F74] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#006B9E] transition"
+          >
+            View Details
+          </button>
         </div>
       </div>
     </div>
@@ -271,30 +290,105 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
           {/* Order Items */}
           {order.items && order.items.length > 0 && (
             <div>
-              <h3 className="font-semibold text-[#002E4D] mb-3">
+              <h3 className="font-semibold text-[#002E4D] mb-4 text-lg">
                 Order Items ({order.items.length})
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {order.items.map((item, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                    className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
                   >
-                    <div>
-                      <div className="font-medium text-[#002E4D]">
-                        {item.name || `Item ${index + 1}`}
-                      </div>
-                      {item.quantity && (
-                        <div className="text-sm text-[#004F74]">
-                          Quantity: {item.quantity}
+                    {/* Product Image */}
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.productName || item.name}
+                        className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                      />
+                    )}
+
+                    {/* Product Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="font-semibold text-[#002E4D] text-lg mb-1">
+                            {item.productName ||
+                              item.name ||
+                              `Item ${index + 1}`}
+                          </div>
+                          {item.details && (
+                            <div className="text-[#004F74] text-sm mb-2 leading-relaxed">
+                              {item.details}
+                            </div>
+                          )}
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            {item.quantity && (
+                              <div className="text-[#002E4D]">
+                                <span className="font-medium">Quantity:</span>{" "}
+                                {item.quantity}
+                              </div>
+                            )}
+                            {item.size && (
+                              <div className="text-[#002E4D]">
+                                <span className="font-medium">Size:</span>{" "}
+                                {item.size}
+                              </div>
+                            )}
+                            {item.color && (
+                              <div className="text-[#002E4D]">
+                                <span className="font-medium">Color:</span>{" "}
+                                {item.color}
+                              </div>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Pricing */}
+                        <div className="text-right space-y-1">
+                          <div className="font-bold text-[#002E4D] text-lg">
+                            LKR {item.price?.toLocaleString()}
+                          </div>
+                          {item.shipping && (
+                            <div className="text-[#004F74] text-sm">
+                              + LKR {item.shipping?.toLocaleString()} shipping
+                            </div>
+                          )}
+                          <div className="text-[#002E4D] text-sm font-medium">
+                            Total: LKR{" "}
+                            {(
+                              parseFloat(item.price || 0) +
+                              parseFloat(item.shipping || 0)
+                            ).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Product Link */}
+                      {item.link && (
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 mt-2"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                          View Product
+                        </a>
                       )}
                     </div>
-                    {item.price && (
-                      <div className="font-semibold text-[#004F74]">
-                        LKR {item.price?.toLocaleString()}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -303,7 +397,21 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
 
           {/* Total */}
           <div className="border-t border-gray-200 pt-4">
-            <div className="flex justify-between items-center text-lg font-bold">
+            <div className="space-y-2 mb-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-[#004F74]">Subtotal</span>
+                <span className="text-[#002E4D] font-medium">
+                  LKR {order.subtotal?.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-[#004F74]">Shipping</span>
+                <span className="text-[#002E4D] font-medium">
+                  LKR {order.shipping?.toLocaleString()}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-200">
               <span className="text-[#002E4D]">Total Amount</span>
               <span className="text-2xl text-[#004F74]">
                 LKR {order.total?.toLocaleString()}

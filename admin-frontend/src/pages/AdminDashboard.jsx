@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where } from "firebase/firestore"; // Add this import
+import "../firebase";
 
 const PROXY_URL = "http://localhost:3001/api/script";
 
 const AdminDashboard = () => {
   const [links, setLinks] = useState([]);
   const [sentInvoices, setSentInvoices] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -21,7 +24,10 @@ const AdminDashboard = () => {
   const [productLoading, setProductLoading] = useState(false);
   const [productError, setProductError] = useState(null);
   const [productSuccess, setProductSuccess] = useState(null);
-  const [activeTab, setActiveTab] = useState("pending"); // "pending" or "sent"
+  const [activeTab, setActiveTab] = useState("pending"); // "pending", "sent", or "orders"
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
+  const [pushDisabled, setPushDisabled] = useState({});
 
   // Fetch links and sent invoices on load
   useEffect(() => {
@@ -55,6 +61,29 @@ const AdminDashboard = () => {
     };
 
     fetchData();
+  }, []);
+
+  // Fetch orders from Firestore
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setOrdersLoading(true);
+      setOrdersError(null);
+      try {
+        const db = getFirestore();
+        const ordersRef = collection(db, "orders");
+        const snapshot = await getDocs(ordersRef);
+        const ordersList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setOrders(ordersList.reverse());
+      } catch (err) {
+        setOrdersError("Failed to fetch orders: " + err.message);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+    fetchOrders();
   }, []);
 
   // Open modal for product card creation
@@ -137,6 +166,110 @@ const AdminDashboard = () => {
     localStorage.removeItem('sentInvoices');
   };
 
+  // Add this function inside AdminDashboard component
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const db = getFirestore();
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, { status: newStatus });
+      setOrders(prev =>
+        prev.map(order =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (err) {
+      alert("Failed to update status: " + err.message);
+    }
+  };
+
+  // Helper to get UID from email
+  const getUserUidByEmail = async (email) => {
+    const db = getFirestore();
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return snapshot.docs[0].id; // Assuming doc ID is UID
+    }
+    return null;
+  };
+
+  const handlePushOrder = async (order) => {
+    try {
+      const db = getFirestore();
+      let userId = order.userId;
+      if (!userId && order.userEmail) {
+        userId = await getUserUidByEmail(order.userEmail);
+      }
+      if (!userId) {
+        alert("User UID not found for this order.");
+        return;
+      }
+
+      // Find the user's order by orderId and userId
+      const ordersRef = collection(db, "orders");
+      const q = query(
+        ordersRef,
+        where("orderId", "==", order.orderId),
+        where("userId", "==", userId)
+      );
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        // Update the existing order's status
+        const docRef = doc(db, "orders", snapshot.docs[0].id);
+        await updateDoc(docRef, {
+          status: order.status,
+          timestamp: new Date(),
+        });
+        alert("Order status updated for user!");
+      } else {
+        // If not found, create a new order
+        await addDoc(collection(db, "orders"), {
+          ...order,
+          userId,
+          timestamp: new Date(),
+        });
+        alert("Order pushed to user's dashboard!");
+      }
+    } catch (err) {
+      alert("Failed to push/update order: " + err.message);
+    }
+  };
+
+  const isPushDisabled = async (order) => {
+    const db = getFirestore();
+    let userId = order.userId;
+    if (!userId && order.userEmail) {
+      userId = await getUserUidByEmail(order.userEmail);
+    }
+    if (!userId) return true;
+    const ordersRef = collection(db, "orders");
+    const q = query(
+      ordersRef,
+      where("orderId", "==", order.orderId),
+      where("userId", "==", userId)
+    );
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const existingOrder = snapshot.docs[0].data();
+      return existingOrder.status === order.status;
+    }
+    return false;
+  };
+
+  // Update pushDisabled when orders change
+  useEffect(() => {
+    const checkAll = async () => {
+      const result = {};
+      for (const order of orders) {
+        result[order.id] = await isPushDisabled(order);
+      }
+      setPushDisabled(result);
+    };
+    if (orders.length > 0) checkAll();
+  }, [orders]);
+
   return (
     <div className="flex">
       <Sidebar />
@@ -177,6 +310,21 @@ const AdminDashboard = () => {
               {sentInvoices.length > 0 && (
                 <span className="ml-2 bg-[#002E4D] text-white text-xs px-2 py-1 rounded-full">
                   {sentInvoices.length}
+                </span>
+              )}
+            </button>
+            <button
+              className={`px-6 py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
+                activeTab === "orders"
+                  ? "border-[#002E4D] text-[#002E4D]"
+                  : "border-transparent text-[#004F74] hover:text-[#002E4D]"
+              }`}
+              onClick={() => setActiveTab("orders")}
+            >
+              Orders
+              {orders.length > 0 && (
+                <span className="ml-2 bg-[#002E4D] text-white text-xs px-2 py-1 rounded-full">
+                  {orders.length}
                 </span>
               )}
             </button>
@@ -392,6 +540,74 @@ const AdminDashboard = () => {
                     </div>
                   ))}
                 </>
+              )}
+            </div>
+          )}
+
+          {/* Orders Tab */}
+          {!loading && !error && activeTab === "orders" && (
+            <div className="space-y-6">
+              {ordersLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-pulse text-[#004F74]">Loading orders...</div>
+                </div>
+              ) : ordersError ? (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
+                  {ordersError}
+                </div>
+              ) : orders.length === 0 ? (
+                <div className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-8 text-center">
+                  <svg className="w-12 h-12 text-[#81BBDF] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-[#002E4D] mb-2">No Orders Found</h3>
+                  <p className="text-[#004F74]">Orders placed by users will appear here.</p>
+                </div>
+              ) : (
+                orders.map(order => (
+                  <div key={order.id} className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-bold text-lg text-[#002E4D]">{order.userName} ({order.userEmail})</h3>
+                        <div className="text-sm text-[#004F74]">{order.address} | {order.phone}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-[#002E4D]">{order.total} LKR</div>
+                        <div className="text-xs text-[#004F74]">{order.timestamp?.toDate ? order.timestamp.toDate().toLocaleString() : new Date(order.timestamp).toLocaleString()}</div>
+                        <div className="text-xs text-[#004F74]">{order.paymentMethod?.toUpperCase()}</div>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <div className="font-semibold text-[#002E4D] mb-1">Items:</div>
+                      <ul className="list-disc pl-6 text-[#004F74] text-sm">
+                        {order.items && order.items.map((item, idx) => (
+                          <li key={idx}>
+                            {item.productName} - LKR {item.price} (Shipping: LKR {item.shipping})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <select
+                        className="px-2 py-1 border border-[#81BBDF] rounded text-xs text-[#002E4D] bg-white"
+                        value={order.status || "Order Placed"}
+                        onChange={e => handleStatusChange(order.id, e.target.value)}
+                      >
+                        <option>Order Placed</option>
+                        <option>Packing</option>
+                        <option>Out For Delivery</option>
+                        <option>Delivered</option>
+                      </select>
+                      <button
+                        className={`ml-2 px-3 py-1 rounded text-xs transition ${pushDisabled[order.id] ? "bg-gray-400 cursor-not-allowed" : "bg-[#002E4D] text-white hover:bg-[#004F74]"}`}
+                        onClick={() => handlePushOrder(order)}
+                        disabled={pushDisabled[order.id]}
+                      >
+                        {pushDisabled[order.id] ? "Pushed" : "Push"}
+                      </button>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           )}

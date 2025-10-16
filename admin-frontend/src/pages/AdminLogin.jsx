@@ -1,49 +1,32 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import googlelogo from "../assets/google.webp";
-import {
-  registerWithEmailAndPassword,
-  signInWithGoogle,
-} from "../firebase";
 
-const SignUp = () => {
-  const [name, setName] = useState("");
+function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
-    if (!name) {
-      alert("Enter your name");
-      return;
-    }
-
+    setError("");
     setLoading(true);
-    try {
-      await registerWithEmailAndPassword(name, email, password);
-      navigate("/");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleGoogleSignUp = async () => {
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      navigate("/");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (trimmedEmail === "admin@example.com" && trimmedPassword === "admin123") {
+      localStorage.setItem("adminLoggedIn", "true");
+      navigate("/dashboard");
+    } else {
+      setError("Invalid admin credentials");
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -64,35 +47,18 @@ const SignUp = () => {
           <div className="relative inline-block mb-4">
             <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-2xl blur-lg opacity-10"></div>
             <h1 className="text-5xl font-bold tracking-wider uppercase relative">
-              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1 rounded-lg">S</span>UPUN
+              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
               <span className="font-light ml-1">EXPRESS</span>
             </h1>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
-            </div>
-            <p className="text-[#004F74] text-lg font-medium relative backdrop-blur-sm px-6 inline-block">
-              Find it. Love it. Get it — Globally.
-            </p>
-          </div>
         </header>
 
-        {/* Premium SignUp Card */}
+        {/* Premium Admin Login Card */}
         <div className="relative w-full max-w-md">
           {/* Card Glow Effect */}
           <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
           
           <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
-            {/* Card Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-6 py-3 rounded-sm shadow-lg mb-4">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                <span className="font-semibold">Join Our Community</span>
-              </div>
-            </div>
 
             {/* Error Message */}
             {error && (
@@ -106,33 +72,18 @@ const SignUp = () => {
               </div>
             )}
 
-            {/* SignUp Form */}
-            <form className="space-y-6" onSubmit={handleSignUp}>
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-xl blur-sm opacity-10"></div>
                   <input
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
-                    required
-                  />
-                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-xl blur-sm opacity-10"></div>
-                  <input
                     type="email"
-                    placeholder="Enter your email address"
+                    placeholder="Enter admin email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
                     required
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
                   />
                   <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -143,11 +94,11 @@ const SignUp = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-xl blur-sm opacity-10"></div>
                   <input
                     type="password"
-                    placeholder="Create a secure password"
+                    placeholder="Enter admin password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
                     required
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 pl-12 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] placeholder-[#004F74]/60 shadow-inner"
                   />
                   <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -155,7 +106,8 @@ const SignUp = () => {
                 </div>
               </div>
 
-              {/* Create Account Button */}
+
+              {/* Login Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -164,58 +116,28 @@ const SignUp = () => {
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating Your Account...</span>
+                    <span>Verifying Credentials...</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    <span>Create Your Account</span>
+                    <span>Access Admin Dashboard</span>
                   </>
                 )}
               </button>
             </form>
-
-            {/* Divider */}
-            <div className="flex items-center my-8">
-              <div className="flex-1 border-t border-[#81BBDF]/50"></div>
-              <span className="px-4 text-[#004F74] text-sm font-medium bg-white/80 backdrop-blur-sm py-1 rounded-full">or continue with</span>
-              <div className="flex-1 border-t border-[#81BBDF]/50"></div>
-            </div>
-
-            {/* Google Sign-Up */}
-            <button
-              onClick={handleGoogleSignUp}
-              disabled={loading}
-              className="w-full border-2 border-[#81BBDF]/50 text-[#002E4D] font-semibold py-4 rounded-xl hover:bg-[#002E4D] hover:text-white hover:border-[#002E4D] transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm"
-            >
-              <img src={googlelogo} alt="Google" className="w-5 h-5" />
-              {loading ? 'Creating Account...' : 'Sign up with Google'}
-            </button>
-
-            {/* Sign In Link */}
-            <div className="text-center mt-8 pt-6 border-t border-[#81BBDF]/30">
-              <p className="text-[#004F74]">
-                Already have an account?{" "}
-                <span
-                  className="text-[#002E4D] cursor-pointer font-semibold hover:underline transition-all duration-300 hover:text-[#001223]"
-                  onClick={() => navigate("/login")}
-                >
-                  Sign in here
-                </span>
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Security Note */}
+        {/* Security Footer */}
         <div className="mt-8 text-center max-w-md">
           <p className="text-xs text-[#004F74]/70 flex items-center justify-center gap-2">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            Your information is protected with enterprise-grade security
+            All access is logged and monitored for security purposes
           </p>
         </div>
       </div>
@@ -232,6 +154,6 @@ const SignUp = () => {
       `}</style>
     </div>
   );
-};
+}
 
-export default SignUp;
+export default AdminLogin;

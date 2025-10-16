@@ -64,6 +64,7 @@ function AddToCart() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [addressChecked, setAddressChecked] = useState(false);
+  const [postalCode, setPostalCode] = useState("");
 
   // Listen for user changes and fetch profile info
   useEffect(() => {
@@ -183,6 +184,7 @@ function AddToCart() {
         userName: user.displayName || user.email.split("@")[0],
         userEmail: user.email,
         address: address,
+        postalCode: postalCode,
         phone: phone,
         items: cart,
         subtotal: getSubtotal(),
@@ -210,6 +212,7 @@ function AddToCart() {
       const orderDetails = {
         userName: user.displayName || user.email.split("@")[0],
         address,
+        postalCode,
         phone,
         email: user.email,
         orderDescription: `${item.productName} (LKR ${item.price})`,

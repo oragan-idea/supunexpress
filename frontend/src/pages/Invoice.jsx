@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { Link } from "react-router-dom";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 
 function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
@@ -24,29 +25,24 @@ function Invoice() {
   }, [auth]);
 
   useEffect(() => {
-    const user = auth.currentUser;
     if (!user) return;
     const fetchCards = async () => {
       setLoading(true);
       setError(null);
       try {
-        const url = `${APPS_SCRIPT_URL}?type=productCards&email=${encodeURIComponent(
-          user.email
-        )}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.status === "success") {
-          setCards(data.productCards);
-        } else {
-          setError(data.message || "Unknown error");
-        }
+        const db = getFirestore();
+        const invoicesRef = collection(db, "invoices");
+        const q = query(invoicesRef, where("userEmail", "==", user.email));
+        const snapshot = await getDocs(q);
+        const invoices = snapshot.docs.map((doc) => doc.data());
+        setCards(invoices);
       } catch (err) {
         setError("Failed to fetch product cards.");
       }
       setLoading(false);
     };
     fetchCards();
-  }, [auth.currentUser]);
+  }, [user]);
 
   // Remove last ordered items (COD) from invoice
 

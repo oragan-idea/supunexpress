@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 function App() {
   const [linkInput, setLinkInput] = useState("");
@@ -51,53 +52,41 @@ function App() {
   };
 
   const handleSubmitLinks = async () => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("⚠️ Please login before submitting links");
-    return;
-  }
+    const user = auth.currentUser;
+    if (!user) {
+      alert("⚠️ Please login before submitting links");
+      return;
+    }
+    if (!linksList.length) return setError("Please add at least one link");
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-  if (!linksList.length) return setError("Please add at least one link");
-  setLoading(true);
-  setError(null);
-  setSuccess(null);
+    const payload = {
+      uid: user.uid,
+      name: user.displayName || "No Name",
+      email: user.email,
+      links: linksList,
+      submittedAt: new Date().toISOString(),
+    };
 
-  const payload = {
-    uid: user.uid,
-    name: user.displayName || "No Name",
-    email: user.email,
-    links: linksList,
-    submittedAt: new Date().toISOString(),
-  };
+    try {
+      // Save to Firestore
+      const db = getFirestore();
+      await addDoc(collection(db, "submissions"), payload);
 
-  try {
-    // Fire both requests without waiting for a response
-    fetch(SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      // Send email notification
+      await sendEmail(payload);
 
-    fetch("https://script.google.com/macros/s/AKfycbwuDoDnhStp86-yOS58q9XsiJ41KeoH3CqMfZSPhO2m-XK19unPMXC9w_8DZbImfaFz/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    // Artificial short delay to let requests fire
-    setTimeout(() => {
       setSuccess("Links submitted successfully!");
       setLinksList([]);
       setLoading(false);
-    }, 1500);
-  } catch (err) {
-    console.error(err);
-    setError("❌ Failed to submit links. Please try again.");
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      console.error(err);
+      setError("❌ Failed to submit links or send email. Please try again.");
+      setLoading(false);
+    }
+  };
 
 
   const handleKeyPress = (e) => e.key === "Enter" && handleAddLink();

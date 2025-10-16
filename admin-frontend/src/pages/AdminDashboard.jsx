@@ -40,18 +40,15 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(PROXY_URL);
-        const data = await response.json();
-        if (data.status === "success" && Array.isArray(data.links)) {
-          setLinks([...data.links].reverse());
-          // Load sent invoices from localStorage
-          const savedInvoices = localStorage.getItem('sentInvoices');
-          if (savedInvoices) {
-            setSentInvoices(JSON.parse(savedInvoices));
-          }
-        } else {
-          setLinks([]);
-          setError(data.message || "Unknown error or invalid data");
+        const db = getFirestore();
+        const submissionsRef = collection(db, "submissions");
+        const snapshot = await getDocs(submissionsRef);
+        const submissions = snapshot.docs.map(doc => doc.data());
+        setLinks(submissions.reverse());
+        // Load sent invoices from localStorage
+        const savedInvoices = localStorage.getItem('sentInvoices');
+        if (savedInvoices) {
+          setSentInvoices(JSON.parse(savedInvoices));
         }
       } catch (err) {
         setError("Failed to fetch links: " + err.message);
@@ -105,56 +102,39 @@ const AdminDashboard = () => {
     setProductError(null);
     setProductSuccess(null);
     try {
-      const payload = {
-        type: "productCard",
+      const db = getFirestore();
+      const invoice = {
         userEmail: modalUser.email,
         userName: modalUser.name,
+        productName: productForm.productName,
+        price: productForm.price,
+        shipping: productForm.shipping,
+        total: (parseFloat(productForm.price) + parseFloat(productForm.shipping || 0)).toFixed(2),
         link: modalLink,
-        ...productForm,
         createdAt: new Date().toISOString(),
+        status: "sent",
+        details: productForm.details,
+        imageUrl: productForm.imageUrl,
         invoiceId: `INV-${Date.now()}`
       };
-      
-      const response = await fetch(PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      
-      const data = await response.json();
-      if (data.status === "success") {
-        // Create invoice object
-        const invoice = {
-          id: payload.invoiceId,
-          userName: modalUser.name,
-          userEmail: modalUser.email,
-          productName: productForm.productName,
-          price: productForm.price,
-          shipping: productForm.shipping,
-          total: (parseFloat(productForm.price) + parseFloat(productForm.shipping || 0)).toFixed(2),
-          link: modalLink,
-          createdAt: payload.createdAt,
-          status: "sent"
-        };
 
-        // Add to sent invoices
-        const updatedInvoices = [...sentInvoices, invoice];
-        setSentInvoices(updatedInvoices);
-        localStorage.setItem('sentInvoices', JSON.stringify(updatedInvoices));
+      await addDoc(collection(db, "invoices"), invoice);
 
-        // Remove the link from pending links
-        setLinks(prevLinks => 
-          prevLinks.map(user => ({
-            ...user,
-            links: user.links?.filter(link => link !== modalLink) || []
-          })).filter(user => user.links?.length > 0)
-        );
+      // Add to sent invoices (local state)
+      const updatedInvoices = [...sentInvoices, invoice];
+      setSentInvoices(updatedInvoices);
+      localStorage.setItem('sentInvoices', JSON.stringify(updatedInvoices));
 
-        setProductSuccess("Product card created and invoice sent to user!");
-        setTimeout(() => setShowModal(false), 2000);
-      } else {
-        setProductError(data.message || "Failed to create product card.");
-      }
+      // Remove the link from pending links
+      setLinks(prevLinks => 
+        prevLinks.map(user => ({
+          ...user,
+          links: user.links?.filter(link => link !== modalLink) || []
+        })).filter(user => user.links?.length > 0)
+      );
+
+      setProductSuccess("Product card created and invoice sent to user!");
+      setTimeout(() => setShowModal(false), 2000);
     } catch (err) {
       setProductError("Failed to create product card: " + err.message);
     } finally {

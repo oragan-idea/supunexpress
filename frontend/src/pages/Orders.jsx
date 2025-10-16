@@ -2,56 +2,56 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 
 const Orders = () => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrders = async (userId) => {
-    try {
-      setLoading(true);
-      const ordersRef = collection(db, "orders");
-      const q = query(
-        ordersRef,
-        where("userId", "==", userId),
-        orderBy("timestamp", "desc")
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const ordersData = [];
-      
-      querySnapshot.forEach((doc) => {
-        ordersData.push({
-          id: doc.id,
-          ...doc.data()
-        });
-      });
-      
-      setOrders(ordersData);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeOrders = null;
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        fetchOrders(currentUser.uid);
+        setLoading(true);
+        const ordersRef = collection(db, "orders");
+        const q = query(
+          ordersRef,
+          where("userId", "==", currentUser.uid),
+          orderBy("timestamp", "desc")
+        );
+        unsubscribeOrders = onSnapshot(
+          q,
+          (querySnapshot) => {
+            const ordersData = [];
+            querySnapshot.forEach((doc) => {
+              ordersData.push({
+                id: doc.id,
+                ...doc.data()
+              });
+            });
+            setOrders(ordersData);
+            setLoading(false);
+          },
+          (error) => {
+            console.error("Error fetching orders:", error);
+            setLoading(false);
+          }
+        );
       } else {
         setOrders([]);
         setLoading(false);
       }
     });
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribeOrders) unsubscribeOrders();
+      unsubscribeAuth();
+    };
   }, []);
 
   const totalOrders = orders.length;
-  const pendingOrders = orders.filter(o => 
+  const pendingOrders = orders.filter(o =>
     o.status === "pending" || o.status === "processing" || o.status === "confirmed"
   ).length;
   const deliveredOrders = orders.filter(o => o.status === "delivered").length;
@@ -59,17 +59,17 @@ const Orders = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'delivered': 
-      case 'paid': 
+      case 'delivered':
+      case 'paid':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'shipped': 
+      case 'shipped':
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'processing':
-      case 'confirmed': 
+      case 'confirmed':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'pending': 
+      case 'pending':
         return 'bg-orange-100 text-orange-800 border-orange-200';
-      default: 
+      default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -120,10 +120,10 @@ const Orders = () => {
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -143,7 +143,6 @@ const Orders = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
       <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
-      
       <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
       <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
       <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500"></div>
@@ -163,7 +162,6 @@ const Orders = () => {
                 <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
               </div>
             </div>
-
             {user && (
               <p className="mt-6 text-base md:text-lg font-medium text-[#002E4D]">
                 Hello,{" "}
@@ -191,7 +189,6 @@ const Orders = () => {
                 </div>
               </div>
             </div>
-
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-2xl blur opacity-10"></div>
               <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -208,7 +205,6 @@ const Orders = () => {
                 </div>
               </div>
             </div>
-
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-2xl blur opacity-10"></div>
               <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -225,7 +221,6 @@ const Orders = () => {
                 </div>
               </div>
             </div>
-
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-2xl blur opacity-10"></div>
               <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -246,7 +241,6 @@ const Orders = () => {
 
           <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
-            
             <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-6 border-b border-[#81BBDF]/30">
                 <div>
@@ -259,7 +253,6 @@ const Orders = () => {
                   <p className="text-[#004F74] mt-2">Track and manage your recent purchases</p>
                 </div>
               </div>
-              
               {orders.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-24 h-24 bg-gradient-to-br from-[#CEE2FF] to-[#E8F2FF] rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg">
@@ -336,7 +329,6 @@ const Orders = () => {
             </div>
           </div>
         </div>
-
         <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
           <div className="max-w-7xl mx-auto">
@@ -345,7 +337,6 @@ const Orders = () => {
           </div>
         </footer>
       </div>
-
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }

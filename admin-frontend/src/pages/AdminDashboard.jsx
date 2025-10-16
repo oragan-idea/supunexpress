@@ -277,7 +277,7 @@ const AdminDashboard = () => {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-[#002E4D]">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-2 text-[#002E4D]">Admin ashboard</h1>
             <p className="text-[#004F74]">Manage user submissions and create product cards</p>
           </div>
 

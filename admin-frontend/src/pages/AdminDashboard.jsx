@@ -797,10 +797,13 @@ const AdminDashboard = () => {
                           {order.userName} ({order.userEmail})
                         </h3>
                         <div className="text-sm text-[#004F74]">
-                          {order.address} | {order.phone}
+                          {order.address} | {order.postalCode} 
                         </div>
                         <div className="text-sm text-[#004F74]">
-                          {order.orderId}
+                          Phone: {order.phone}
+                        </div>
+                        <div className="text-sm text-[#004F74]">
+                          Oder ID: {order.orderId}
                         </div>
                       </div>
                       <div className="text-right">

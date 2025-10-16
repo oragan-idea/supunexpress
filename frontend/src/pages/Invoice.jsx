@@ -6,7 +6,8 @@ function getCartKey(user) {
   return user && user.email ? `cart_${user.email}` : "cart_guest";
 }
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2DZDfsx9QxsNdgb9OeZd5uPbh9-WS9QEQufagoRYO7AnAkM1eECOQhtAoethEwtNF/exec";
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbw2DZDfsx9QxsNdgb9OeZd5uPbh9-WS9QEQufagoRYO7AnAkM1eECOQhtAoethEwtNF/exec";
 
 function Invoice() {
   const [cards, setCards] = useState([]);
@@ -29,7 +30,9 @@ function Invoice() {
       setLoading(true);
       setError(null);
       try {
-        const url = `${APPS_SCRIPT_URL}?type=productCards&email=${encodeURIComponent(user.email)}`;
+        const url = `${APPS_SCRIPT_URL}?type=productCards&email=${encodeURIComponent(
+          user.email
+        )}`;
         const response = await fetch(url);
         const data = await response.json();
         if (data.status === "success") {
@@ -45,20 +48,19 @@ function Invoice() {
     fetchCards();
   }, [auth.currentUser]);
 
-
   // Remove last ordered items (COD) from invoice
 
   // Helper: get persistent removed orders
   function getRemovedOrders(email) {
     try {
-      return JSON.parse(localStorage.getItem(`removedOrders_${email}`) || '[]');
+      return JSON.parse(localStorage.getItem(`removedOrders_${email}`) || "[]");
     } catch {
       return [];
     }
   }
 
   function setRemovedOrders(email, arr) {
-    localStorage.setItem(`removedOrders_${email}` , JSON.stringify(arr));
+    localStorage.setItem(`removedOrders_${email}`, JSON.stringify(arr));
   }
 
   // After fetch, filter out removed orders and update removed list if needed
@@ -72,7 +74,7 @@ function Invoice() {
       try {
         const lastOrdered = JSON.parse(lastOrderedRaw);
         if (Array.isArray(lastOrdered) && lastOrdered.length > 0) {
-          lastOrdered.forEach(lo => {
+          lastOrdered.forEach((lo) => {
             const key = `${lo.productName}|${lo.price}|${lo.userEmail}`;
             if (!removedOrders.includes(key)) {
               removedOrders.push(key);
@@ -86,7 +88,7 @@ function Invoice() {
     if (changed) setRemovedOrders(user.email, removedOrders);
     // Only update cards if filtering actually changes the array
     if (removedOrders.length > 0) {
-      const filtered = cards.filter(card => {
+      const filtered = cards.filter((card) => {
         const key = `${card.productName}|${card.price}|${card.userEmail}`;
         return !removedOrders.includes(key);
       });
@@ -114,13 +116,34 @@ function Invoice() {
     alert("Added to cart!");
   };
 
+  const removeInvoice = (card) => {
+    if (!user) return;
+    if (!window.confirm("Are you sure you want to remove this invoice?"))
+      return;
+
+    const key = `${card.productName}|${card.price}|${card.userEmail}`;
+    const removedOrders = getRemovedOrders(user.email);
+
+    // Skip if already removed
+    if (!removedOrders.includes(key)) {
+      removedOrders.push(key);
+      setRemovedOrders(user.email, removedOrders);
+    }
+
+    // Update UI immediately
+    const updatedCards = cards.filter(
+      (c) => `${c.productName}|${c.price}|${c.userEmail}` !== key
+    );
+    setCards(updatedCards);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] text-[#002E4D] relative overflow-hidden">
       {/* Premium Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
       <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
-      
+
       {/* Animated Floating Elements */}
       <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
       <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
@@ -131,7 +154,8 @@ function Invoice() {
           {/* Premium Header */}
           <header className="text-center mb-8 py-12">
             <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
-              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>UPUN
+              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>
+              UPUN
               <span className="font-light ml-1">EXPRESS</span>
             </h1>
             <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
@@ -143,15 +167,27 @@ function Invoice() {
           <div className="relative">
             {/* Card Glow Effect */}
             <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
-            
+
             <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
               {/* Card Header */}
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-3 text-[#002E4D] px-6 py-3 rounded-sm shadow-lg">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
-                  <span className="font-semibold text-2xl">Product Invoices</span>
+                  <span className="font-semibold text-2xl">
+                    PRODUCT INVOICES
+                  </span>
                 </div>
               </div>
 
@@ -169,8 +205,18 @@ function Invoice() {
               {error && (
                 <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 shadow-lg">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-5 h-5 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     {error}
                   </div>
@@ -180,17 +226,42 @@ function Invoice() {
               {/* Empty State */}
               {!loading && !error && cards.length === 0 && (
                 <div className="text-center py-12">
-                  <svg className="w-16 h-16 text-[#81BBDF] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className="w-16 h-16 text-[#81BBDF] mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
-                  <h3 className="text-xl font-semibold text-[#002E4D] mb-2">No Invoices Yet</h3>
-                  <p className="text-[#004F74] mb-6">Your product invoices will appear here once the admin processes your requests.</p>
+                  <h3 className="text-xl font-semibold text-[#002E4D] mb-2">
+                    No Invoices Yet
+                  </h3>
+                  <p className="text-[#004F74] mb-6">
+                    Your product invoices will appear here once the admin
+                    processes your requests.
+                  </p>
                   <Link
                     to="/"
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      />
                     </svg>
                     Back to Home
                   </Link>
@@ -217,7 +288,7 @@ function Invoice() {
                               />
                             </div>
                           )}
-                          
+
                           {/* Product Details */}
                           <div className="flex-1">
                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -228,27 +299,41 @@ function Invoice() {
                                 <p className="text-[#004F74] mb-4 leading-relaxed">
                                   {card.details}
                                 </p>
-                                
+
                                 {/* Pricing Information */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
-                                    <span className="text-sm font-medium text-[#002E4D]">Product Price:</span>
-                                    <span className="text-lg font-bold text-[#004F74]">{card.price} LKR</span>
+                                    <span className="text-sm font-medium text-[#002E4D]">
+                                      Product Price:
+                                    </span>
+                                    <span className="text-lg font-bold text-[#004F74]">
+                                      {card.price} LKR
+                                    </span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
-                                    <span className="text-sm font-medium text-[#002E4D]">Shipping Cost:</span>
-                                    <span className="text-lg font-bold text-[#004F74]">{card.shipping} LKR</span>
+                                    <span className="text-sm font-medium text-[#002E4D]">
+                                      Shipping Cost:
+                                    </span>
+                                    <span className="text-lg font-bold text-[#004F74]">
+                                      {card.shipping} LKR
+                                    </span>
                                   </div>
                                 </div>
 
                                 {/* Total Price */}
                                 <div className="flex items-center gap-2 mb-4 p-3 bg-white/50 rounded-lg border border-[#81BBDF]/20">
                                   <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
-                                  <span className="text-sm font-medium text-[#002E4D]">Total Amount:</span>
+                                  <span className="text-sm font-medium text-[#002E4D]">
+                                    Total Amount:
+                                  </span>
                                   <span className="text-xl font-bold text-[#002E4D]">
-                                    {(parseFloat(card.price) + parseFloat(card.shipping || 0)).toFixed(2)} LKR
+                                    {(
+                                      parseFloat(card.price) +
+                                      parseFloat(card.shipping || 0)
+                                    ).toFixed(2)}{" "}
+                                    LKR
                                   </span>
                                 </div>
                               </div>
@@ -261,8 +346,18 @@ function Invoice() {
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#002E4D] text-white rounded-lg hover:bg-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
                                 >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
                                   </svg>
                                   View Product
                                 </a>
@@ -270,10 +365,40 @@ function Invoice() {
                                   onClick={() => addToCart(card)}
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#004F74] to-[#002E4D] text-white rounded-lg hover:from-[#002E4D] hover:to-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
                                 >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
                                   </svg>
                                   Add to Cart
+                                </button>
+
+                                <button
+                                  onClick={() => removeInvoice(card)}
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                  Remove Invoice
                                 </button>
                               </div>
                             </div>
@@ -292,8 +417,12 @@ function Invoice() {
         <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
           <div className="max-w-6xl mx-auto">
-            <p className="mb-2 font-medium">SUPUN EXPRESS &copy; {new Date().getFullYear()}</p>
-            <p className="text-xs text-[#81BBDF]">Elevating Global Commerce Through Premium Service</p>
+            <p className="mb-2 font-medium">
+              SUPUN EXPRESS &copy; {new Date().getFullYear()}
+            </p>
+            <p className="text-xs text-[#81BBDF]">
+              Elevating Global Commerce Through Premium Service
+            </p>
           </div>
         </footer>
       </div>
@@ -301,8 +430,13 @@ function Invoice() {
       {/* Add custom animations to tailwind config */}
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;

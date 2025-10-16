@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where } from "firebase/firestore"; // Add this import
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where,orderBy } from "firebase/firestore"; // Add this import
 import "../firebase";
 
 const PROXY_URL = "http://localhost:3001/api/script";
@@ -66,23 +66,25 @@ const AdminDashboard = () => {
   // Fetch orders from Firestore
   useEffect(() => {
     const fetchOrders = async () => {
-      setOrdersLoading(true);
-      setOrdersError(null);
-      try {
-        const db = getFirestore();
-        const ordersRef = collection(db, "orders");
-        const snapshot = await getDocs(ordersRef);
-        const ordersList = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setOrders(ordersList.reverse());
-      } catch (err) {
-        setOrdersError("Failed to fetch orders: " + err.message);
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
+  setOrdersLoading(true);
+  setOrdersError(null);
+  try {
+    const db = getFirestore();
+    const ordersRef = collection(db, "orders");
+    // Order by timestamp descending (latest first)
+    const q = query(ordersRef, orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+    const ordersList = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    setOrders(ordersList);
+  } catch (err) {
+    setOrdersError("Failed to fetch orders: " + err.message);
+  } finally {
+    setOrdersLoading(false);
+  }
+};
     fetchOrders();
   }, []);
 
@@ -277,12 +279,12 @@ const AdminDashboard = () => {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-[#002E4D]">Admin ashboard</h1>
+            <h1 className="text-3xl font-bold mb-2 text-[#002E4D]">Admin Dashboard</h1>
             <p className="text-[#004F74]">Manage user submissions and create product cards</p>
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-[#81BBDF] mb-6">
+          <div className="flex border-b border-[#81BBDF] mb-6 gap-80">
             <button
               className={`px-6 py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
                 activeTab === "pending"
@@ -578,14 +580,38 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                     <div className="mt-2">
-                      <div className="font-semibold text-[#002E4D] mb-1">Items:</div>
-                      <ul className="list-disc pl-6 text-[#004F74] text-sm">
-                        {order.items && order.items.map((item, idx) => (
-                          <li key={idx}>
-                            {item.productName} - LKR {item.price} (Shipping: LKR {item.shipping})
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="mt-2">
+  <div className="font-semibold text-[#002E4D] mb-2">Items:</div>
+  {order.items && order.items.map((item, idx) => (
+    <div 
+      key={idx} 
+      className="mb-3 p-3 border border-[#81BBDF] rounded-lg bg-white/70 backdrop-blur-sm"
+    >
+      <div className="text-sm text-[#004F74]">
+        <div>
+          <span className="font-medium text-[#002E4D]">Product:</span> {item.productName}
+        </div>
+        <div>
+          <span className="font-medium text-[#002E4D]">Price:</span> LKR {item.price}
+        </div>
+        {item.link && (
+          <div>
+            <span className="font-medium text-[#002E4D]">Product Link:</span>{" "}
+            <a 
+              href={item.link.startsWith('http') ? item.link : `https://${item.link}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline text-blue-600 hover:text-blue-800"
+            >
+              {item.link}
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
+
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <select

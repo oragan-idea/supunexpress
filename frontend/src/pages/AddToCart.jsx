@@ -76,16 +76,19 @@ function AddToCart() {
         let addr = "";
         let city = "";
         let ph = "";
+        let pcode = "";
 
         if (u.providerData && u.providerData.length > 0) {
           const pd = u.providerData[0];
           addr = pd.address || "";
           city = pd.city || "";
           ph = pd.phoneNumber || pd.phone || "";
+          pcode = pd.postalCode || "";
         }
         if (!addr && u.address) addr = u.address;
         if (!city && u.city) city = u.city;
         if (!ph && u.phoneNumber) ph = u.phoneNumber;
+        if (!pcode && u.postalCode) pcode = u.postalCode;
 
         try {
           const token = await u.getIdTokenResult();
@@ -93,10 +96,11 @@ function AddToCart() {
             if (!addr && token.claims.address) addr = token.claims.address;
             if (!city && token.claims.city) city = token.claims.city;
             if (!ph && token.claims.phone) ph = token.claims.phone;
+            if (!pcode && token.claims.postalCode) pcode = token.claims.postalCode;
           }
         } catch {}
 
-        if ((!addr || !ph) && u.email) {
+        if ((!addr || !ph || !pcode) && u.email) {
           try {
             const db = getFirestore();
             const userDoc = await getDoc(doc(db, "users", u.uid));
@@ -105,6 +109,7 @@ function AddToCart() {
               if (!addr && data.address) addr = data.address;
               if (!city && data.city) city = data.city;
               if (!ph && data.phone) ph = data.phone;
+              if (!pcode && data.postalCode) pcode = data.postalCode;
             }
           } catch {}
         }
@@ -114,10 +119,12 @@ function AddToCart() {
           deliveryAddress = addr ? `${addr}, ${city}` : city;
         setAddress(deliveryAddress || "");
         setPhone(ph || "");
+        setPostalCode(pcode || ""); // <-- FIX: Set postal code from profile
         setAddressChecked(true);
       } else {
         setAddress("");
         setPhone("");
+        setPostalCode(""); // <-- FIX: Reset postal code if not logged in
         setAddressChecked(true);
       }
     });
@@ -184,7 +191,7 @@ function AddToCart() {
         userName: user.displayName || user.email.split("@")[0],
         userEmail: user.email,
         address: address,
-        postalCode: postalCode,
+        postalCode: postalCode || "", // Always save, empty if not present
         phone: phone,
         items: cart,
         subtotal: getSubtotal(),

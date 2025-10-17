@@ -94,9 +94,9 @@ function App() {
       <div className="absolute bottom-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
 
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-8 flex flex-col min-h-screen">
-        <div className="max-w-4xl mx-auto w-full flex-grow">
+        <div className="max-w-4xl mx-auto w-full flex-grow mt-20">
           {/* Header */}
-          <header className="text-center mb-10 sm:mb-16">
+          <header className="text-center mt-15 sm:mb-16">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-wider uppercase pb-3">
               <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>
               UPUN<span className="font-light ml-1">EXPRESS</span>
@@ -107,7 +107,7 @@ function App() {
           </header>
 
           {/* Main Card */}
-          <div className="relative">
+          <div className="relative mt-10">
             <div className="absolute -inset-3 sm:-inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
 
             <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-8 shadow-xl sm:shadow-2xl">

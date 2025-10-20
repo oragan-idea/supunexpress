@@ -137,24 +137,24 @@ function Invoice() {
     <div className="min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] text-[#002E4D] relative overflow-hidden">
       {/* Premium Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
-      <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
 
       {/* Animated Floating Elements */}
-      <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
-      <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
-      <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500"></div>
+      <div className="absolute top-20 right-12 w-5 h-5 bg-[#002E4D]/20 rounded-full animate-float hidden sm:block"></div>
+      <div className="absolute top-36 left-36 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000 hidden md:block"></div>
+      <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500 hidden md:block"></div>
 
-      <div className="relative z-10 p-6 flex flex-col min-h-screen">
-        <div className="max-w-6xl mx-auto flex-grow w-full">
+      <div className="relative z-10 p-4 sm:p-6 md:p-8 flex flex-col min-h-screen">
+        <div className="max-w-5xl mx-auto w-full">
           {/* Premium Header */}
-          <header className="text-center mb-8 py-12">
-            <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
+          <header className="text-center mb-6 sm:mb-8 py-8 sm:py-12">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-wider uppercase pb-2">
               <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>
               UPUN
               <span className="font-light ml-1">EXPRESS</span>
             </h1>
-            <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
+            <p className="text-[#004F74] max-w-xl mx-auto text-sm sm:text-base font-medium">
               Love It, Shop It - Globally
             </p>
           </header>
@@ -164,10 +164,10 @@ function Invoice() {
             {/* Card Glow Effect */}
             <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
 
-            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="relative bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
               {/* Card Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-3 text-[#002E4D] px-6 py-3 rounded-sm shadow-lg">
+              <div className="text-center mb-6 sm:mb-8">
+                <div className="inline-flex items-center gap-3 text-[#002E4D] px-4 py-2 sm:px-6 sm:py-3 rounded-sm shadow-lg">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -181,7 +181,7 @@ function Invoice() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <span className="font-semibold text-2xl">
+                  <span className="font-semibold text-lg sm:text-2xl">
                     PRODUCT INVOICES
                   </span>
                 </div>
@@ -189,10 +189,10 @@ function Invoice() {
 
               {/* Loading State */}
               {loading && (
-                <div className="flex justify-center items-center py-12">
+                <div className="flex justify-center items-center py-8">
                   <div className="flex items-center gap-3 text-[#004F74]">
                     <div className="w-5 h-5 border-2 border-[#002E4D] border-t-transparent rounded-full animate-spin"></div>
-                    Loading your invoices...
+                    <span className="text-sm sm:text-base">Loading your invoices...</span>
                   </div>
                 </div>
               )}
@@ -214,16 +214,16 @@ function Invoice() {
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {error}
+                    <span className="text-sm">{error}</span>
                   </div>
                 </div>
               )}
 
               {/* Empty State */}
               {!loading && !error && cards.length === 0 && (
-                <div className="text-center py-12">
+                <div className="text-center py-8 sm:py-12">
                   <svg
-                    className="w-16 h-16 text-[#81BBDF] mx-auto mb-4"
+                    className="w-12 h-12 sm:w-16 sm:h-16 text-[#81BBDF] mx-auto mb-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -235,16 +235,16 @@ function Invoice() {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold text-[#002E4D] mb-2">
+                  <h3 className="text-lg sm:text-xl font-semibold text-[#002E4D] mb-2">
                     No Invoices Yet
                   </h3>
-                  <p className="text-[#004F74] mb-6">
+                  <p className="text-[#004F74] mb-6 text-sm sm:text-base">
                     Your product invoices will appear here once the admin
                     processes your requests.
                   </p>
                   <Link
                     to="/"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:shadow-lg transition-all duration-300 text-sm sm:text-base font-medium"
                   >
                     <svg
                       className="w-4 h-4"
@@ -266,65 +266,65 @@ function Invoice() {
 
               {/* Product Cards Grid */}
               {!loading && !error && cards.length > 0 && (
-                <div className="grid gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {cards.map((card, idx) => (
                     <div
                       key={idx}
                       className="group bg-gradient-to-r from-[#CEE2FF] to-[#E8F2FF] rounded-xl border border-[#81BBDF]/30 hover:border-[#002E4D]/30 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden"
                     >
-                      <div className="p-6">
-                        <div className="flex flex-col md:flex-row gap-6">
+                      <div className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                           {/* Product Image */}
                           {card.imageUrl && (
-                            <div className="flex-shrink-0">
+                            <div className="flex-shrink-0 w-full sm:w-32">
                               <img
                                 src={card.imageUrl}
                                 alt={card.productName}
-                                className="w-32 h-32 object-cover rounded-xl shadow-md"
+                                className="w-full h-40 sm:h-32 object-cover rounded-md shadow-md"
                               />
                             </div>
                           )}
 
                           {/* Product Details */}
                           <div className="flex-1">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                               <div className="flex-1">
-                                <h3 className="text-xl font-bold text-[#002E4D] mb-2">
+                                <h3 className="text-lg sm:text-xl font-bold text-[#002E4D] mb-1">
                                   {card.productName}
                                 </h3>
-                                <p className="text-[#004F74] mb-4 leading-relaxed">
+                                <p className="text-[#004F74] mb-3 text-sm sm:text-base leading-relaxed">
                                   {card.details}
                                 </p>
 
                                 {/* Pricing Information */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                                  <div className="flex items-center gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                                  <div className="flex items-center gap-2 text-sm">
                                     <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
-                                    <span className="text-sm font-medium text-[#002E4D]">
+                                    <span className="font-medium text-[#002E4D]">
                                       Product Price:
                                     </span>
-                                    <span className="text-lg font-bold text-[#004F74]">
+                                    <span className="text-base font-bold text-[#004F74]">
                                       {card.price} LKR
                                     </span>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 text-sm">
                                     <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
-                                    <span className="text-sm font-medium text-[#002E4D]">
+                                    <span className="font-medium text-[#002E4D]">
                                       Shipping Cost:
                                     </span>
-                                    <span className="text-lg font-bold text-[#004F74]">
+                                    <span className="text-base font-bold text-[#004F74]">
                                       {card.shipping} LKR
                                     </span>
                                   </div>
                                 </div>
 
                                 {/* Total Price */}
-                                <div className="flex items-center gap-2 mb-4 p-3 bg-white/50 rounded-lg border border-[#81BBDF]/20">
+                                <div className="flex items-center gap-2 mb-3 p-3 bg-white/50 rounded-lg border border-[#81BBDF]/20">
                                   <div className="w-2 h-2 bg-[#002E4D] rounded-full"></div>
                                   <span className="text-sm font-medium text-[#002E4D]">
                                     Total Amount:
                                   </span>
-                                  <span className="text-xl font-bold text-[#002E4D]">
+                                  <span className="text-lg sm:text-xl font-bold text-[#002E4D]">
                                     {(
                                       parseFloat(card.price) +
                                       parseFloat(card.shipping || 0)
@@ -335,12 +335,12 @@ function Invoice() {
                               </div>
 
                               {/* Action Buttons */}
-                              <div className="flex flex-col gap-3">
+                              <div className="flex flex-col sm:flex-col gap-3 w-full sm:w-auto">
                                 <a
                                   href={card.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#002E4D] text-white rounded-lg hover:bg-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                  className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-[#002E4D] text-white rounded-md hover:bg-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium w-full sm:w-auto"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -359,7 +359,7 @@ function Invoice() {
                                 </a>
                                 <button
                                   onClick={() => addToCart(card)}
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#004F74] to-[#002E4D] text-white rounded-lg hover:from-[#002E4D] hover:to-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                  className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#004F74] to-[#002E4D] text-white rounded-md hover:from-[#002E4D] hover:to-[#001223] transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium w-full sm:w-auto"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -379,7 +379,7 @@ function Invoice() {
 
                                 <button
                                   onClick={() => removeInvoice(card)}
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium"
+                                  className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all duration-300 shadow-sm hover:shadow-md text-sm font-medium w-full sm:w-auto"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -410,15 +410,11 @@ function Invoice() {
         </div>
 
         {/* Premium Footer */}
-        <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
-          <div className="max-w-6xl mx-auto">
-            <p className="mb-2 font-medium">
-              SUPUN EXPRESS &copy; {new Date().getFullYear()}
-            </p>
-            <p className="text-xs text-[#81BBDF]">
-              Elevating Global Commerce Through Premium Service
-            </p>
+        <footer className="text-center py-6 sm:py-8 text-[#004F74] text-sm mt-8 sm:mt-12 relative">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 md:w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
+          <div className="max-w-5xl mx-auto">
+            <p className="mb-2 font-medium">SUPUN EXPRESS &copy; {new Date().getFullYear()}</p>
+            <p className="text-xs sm:text-sm text-[#81BBDF]">Elevating Global Commerce Through Premium Service</p>
           </div>
         </footer>
       </div>
@@ -431,7 +427,7 @@ function Invoice() {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-20px);
+            transform: translateY(-16px);
           }
         }
         .animate-float {

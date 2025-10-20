@@ -23,15 +23,18 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-[#002E4D] text-white p-3 rounded-lg shadow-lg"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+      {/* Mobile Menu Button - show only when menu is closed */}
+      {!isMobileMenuOpen && (
+        <button
+          aria-label="Open menu"
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="lg:hidden fixed top-5 left-6 z-50 w-11 h-11 rounded-lg flex items-center justify-center bg-white border border-[#DFEAF2] shadow-md text-[#002E4D] focus:outline-none focus:ring-2 focus:ring-[#002E4D]/10"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      )}
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
@@ -50,6 +53,20 @@ export default function Sidebar() {
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
+        {/* Close (cut) button shown inside sidebar on mobile */}
+        {isMobileMenuOpen && (
+          <button
+            aria-label="Close menu"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="lg:hidden absolute top-3 right-3 z-50 w-9 h-9 rounded-md flex items-center justify-center bg-white border border-[#DFEAF2] shadow-sm text-[#002E4D] focus:outline-none"
+          >
+            {/* simple X (replace with scissors SVG if you prefer) */}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+
         {/* Subtle texture overlay for luxury feel */}
         <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDJFNEMiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2Utb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNIDAgMCBMIDYwIDYwIE0gNjAgMCBMIDAgNjAiLz48L2c+PC9zdmc+')]"></div>
         

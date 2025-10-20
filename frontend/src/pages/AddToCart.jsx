@@ -345,25 +345,25 @@ function AddToCart() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] text-[#002E4D] relative overflow-hidden">
       {/* Premium Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
-      <div className="absolute top-0 left-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10" />
+      <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 bg-[#002E4D]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 hidden sm:block" />
+      <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-[#81BBDF]/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 hidden sm:block" />
 
       {/* Animated Floating Elements */}
-      <div className="absolute top-20 right-20 w-6 h-6 bg-[#002E4D]/20 rounded-full animate-float"></div>
-      <div className="absolute top-40 left-40 w-4 h-4 bg-[#81BBDF]/30 rounded-full animate-float delay-1000"></div>
-      <div className="absolute bottom-60 left-20 w-3 h-3 bg-[#004F74]/20 rounded-full animate-float delay-500"></div>
+      <div className="absolute top-20 right-6 w-4 h-4 bg-[#002E4D]/20 rounded-full animate-float hidden md:block" />
+      <div className="absolute top-36 left-24 w-3 h-3 bg-[#81BBDF]/30 rounded-full animate-float delay-1000 hidden lg:block" />
+      <div className="absolute bottom-60 left-12 w-2 h-2 bg-[#004F74]/20 rounded-full animate-float delay-500 hidden lg:block" />
 
-      <div className="relative z-10 p-6 flex flex-col min-h-screen">
-        <div className="max-w-6xl mx-auto flex-grow w-full">
+      <div className="relative z-10 p-4 sm:p-6 md:p-8 flex flex-col min-h-screen">
+        <div className="max-w-5xl mx-auto flex-grow w-full">
           {/* Premium Header */}
-          <header className="text-center mb-8 py-12">
-            <h1 className="text-5xl font-bold tracking-wider uppercase pb-3">
-              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1">S</span>
+          <header className="text-center mb-6 sm:mb-8 py-8 sm:py-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider uppercase pb-3">
+              <span className="bg-[#002E4D] text-white px-2 py-1 mr-1 inline-block">S</span>
               UPUN
               <span className="font-light ml-1">EXPRESS</span>
             </h1>
-            <p className="text-[#004F74] max-w-xl mx-auto text-lg font-medium">
+            <p className="text-[#004F74] max-w-xl mx-auto text-sm sm:text-base font-medium mt-2">
               Love It, Shop It - Globally
             </p>
           </header>
@@ -371,12 +371,12 @@ function AddToCart() {
           {/* Main Content */}
           <div className="relative">
             {/* Card Glow Effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
+            <div className="absolute -inset-3 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10" />
 
-            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
               {/* Card Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-3 text-[#002E4D] px-6 py-3 rounded-sm shadow-lg">
+              <div className="text-center mb-6 sm:mb-8">
+                <div className="inline-flex items-center gap-3 text-[#002E4D] px-4 py-2 sm:px-6 sm:py-3 rounded-sm shadow-lg">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -390,17 +390,17 @@ function AddToCart() {
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-                  <span className="font-semibold text-2xl">SHOPPING CART</span>
+                  <span className="font-semibold text-base sm:text-lg">SHOPPING CART</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   {/* Cart Items */}
                   {cart.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-8">
                       <svg
-                        className="w-16 h-16 text-[#81BBDF] mx-auto mb-4"
+                        className="w-12 h-12 sm:w-16 sm:h-16 text-[#81BBDF] mx-auto mb-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -412,17 +412,17 @@ function AddToCart() {
                           d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                         />
                       </svg>
-                      <h3 className="text-2xl font-bold text-[#002E4D] mb-3">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#002E4D] mb-3">
                         Your Cart is Empty
                       </h3>
-                      <p className="text-[#004F74] mb-6 max-w-md mx-auto">
+                      <p className="text-[#004F74] mb-6 max-w-md mx-auto text-sm sm:text-base">
                         Looks like you haven't added any items to your cart yet.
                         Browse our products and add some items to get started!
                       </p>
-                      <div className="flex gap-4 justify-center">
+                      <div className="flex gap-3 justify-center flex-wrap">
                         <a
                           href="/invoice"
-                          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 font-medium"
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-medium text-sm"
                         >
                           <svg
                             className="w-4 h-4"
@@ -441,7 +441,7 @@ function AddToCart() {
                         </a>
                         <a
                           href="/"
-                          className="inline-flex items-center gap-2 border border-[#002E4D] text-[#002E4D] px-6 py-3 rounded-xl hover:bg-[#002E4D] hover:text-white transition-all duration-300 font-medium"
+                          className="inline-flex items-center gap-2 border border-[#002E4D] text-[#002E4D] px-4 py-2 sm:px-5 sm:py-3 rounded-lg hover:bg-[#002E4D] hover:text-white transition-all duration-300 font-medium text-sm"
                         >
                           <svg
                             className="w-4 h-4"
@@ -461,11 +461,11 @@ function AddToCart() {
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {/* Header */}
+                    <div className="space-y-4">
+                      {/* Header */} 
                       <div className="flex items-center justify-between">
                         <div>
-                          <h2 className="text-2xl font-bold text-[#002E4D]">
+                          <h2 className="text-xl sm:text-2xl font-bold text-[#002E4D]">
                             Cart Items
                           </h2>
                           <p className="text-[#004F74] text-sm mt-1">
@@ -479,7 +479,7 @@ function AddToCart() {
                               const key = getCartKey(user);
                               localStorage.removeItem(key);
                             }}
-                            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
                           >
                             <svg
                               className="w-4 h-4"
@@ -504,23 +504,23 @@ function AddToCart() {
                         {cart.map((item, idx) => (
                           <div
                             key={idx}
-                            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                            className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow"
                           >
-                            <div className="flex gap-6">
+                            <div className="flex gap-4 sm:gap-6 flex-col sm:flex-row">
                               {/* Product Image */}
                               {item.imageUrl && (
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 w-full sm:w-24">
                                   <img
                                     src={item.imageUrl}
                                     alt={item.productName}
-                                    className="w-24 h-24 object-cover rounded-lg"
+                                    className="w-full h-40 sm:h-24 object-cover rounded-lg"
                                   />
                                 </div>
                               )}
 
                               {/* Product Details */}
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                   {/* Product Info */}
                                   <div className="flex-1 space-y-3">
                                     <div>
@@ -533,7 +533,7 @@ function AddToCart() {
                                     </div>
 
                                     {/* Pricing */}
-                                    <div className="flex gap-12 text-sm">
+                                    <div className="flex flex-col sm:flex-row sm:gap-12 text-sm mt-2">
                                       <div>
                                         <div className="text-[#002E4D] font-medium">
                                           Product Price
@@ -572,7 +572,7 @@ function AddToCart() {
                                   </div>
 
                                   {/* Actions */}
-                                  <div className="flex gap-2">
+                                  <div className="flex gap-2 mt-3 sm:mt-0">
                                     <a
                                       href={item.link}
                                       target="_blank"
@@ -626,9 +626,9 @@ function AddToCart() {
 
                 {cart.length > 0 && (
                   <div className="lg:col-span-1">
-                    <div className="sticky top-6">
-                      <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-2xl">
-                        <h3 className="text-xl font-bold text-[#002E4D] mb-6 flex items-center gap-2">
+                    <div className="sticky top-4">
+                      <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 shadow-2xl">
+                        <h3 className="text-lg sm:text-xl font-bold text-[#002E4D] mb-4 flex items-center gap-2">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -645,7 +645,7 @@ function AddToCart() {
                           Order Summary
                         </h3>
 
-                        <div className="space-y-4 mb-6">
+                        <div className="space-y-4 mb-4">
                           <div className="flex justify-between items-center pb-3 border-b border-[#81BBDF]/20">
                             <span className="text-[#004F74]">
                               Subtotal ({cart.length} items)
@@ -671,13 +671,13 @@ function AddToCart() {
                           </div>
                         </div>
 
-                        <div className="mb-6">
+                        <div className="mb-4">
                           <div className="font-semibold text-[#002E4D] mb-3">
                             Payment Method
                           </div>
                           <div className="space-y-3">
                             <label
-                              className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                              className={`flex items-center p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                                 paymentMethod === "payhere"
                                   ? "border-[#002E4D] bg-[#002E4D]/5"
                                   : "border-gray-300 hover:border-[#81BBDF]"
@@ -694,11 +694,11 @@ function AddToCart() {
                               <img
                                 src="https://blog.payhere.lk/wp-content/uploads/2021/02/PayHere-Logo.png"
                                 alt="PayHere"
-                                className="w-35"
+                                className="w-28 sm:w-32"
                               />
                             </label>
                             <label
-                              className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                              className={`flex items-center p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                                 paymentMethod === "cod"
                                   ? "border-[#002E4D] bg-[#002E4D]/5"
                                   : "border-gray-300 hover:border-[#81BBDF]"
@@ -713,12 +713,11 @@ function AddToCart() {
                                 className="mr-3 text-[#002E4D]"
                               />
                               <div className="flex items-center gap-2">
-                                <span className="text-2xl">💵</span>
+                                <span className="text-xl">💵</span>
                                 <div>
                                   <div className="font-semibold text-[#002E4D]">
                                     Cash on Delivery
                                   </div>
-                                  
                                 </div>
                               </div>
                             </label>
@@ -728,17 +727,17 @@ function AddToCart() {
                         <button
                           onClick={handleCheckout}
                           disabled={loading}
-                          className="w-full bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white font-semibold py-4 rounded-xl hover:from-[#004F74] hover:to-[#002E4D] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                          className="w-full bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white font-semibold py-3 sm:py-4 rounded-xl hover:from-[#004F74] hover:to-[#002E4D] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                         >
                           {loading ? (
                             <>
                               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              <span>Processing...</span>
+                              <span className="text-sm">Processing...</span>
                             </>
                           ) : (
                             <>
                               <svg
-                                className="w-5 h-5"
+                                className="w-4 h-4"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -750,12 +749,12 @@ function AddToCart() {
                                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                                 />
                               </svg>
-                              <span>Place Order</span>
+                              <span className="text-sm">Place Order</span>
                             </>
                           )}
                         </button>
 
-                        <div className="mt-4 text-center">
+                        <div className="mt-3 text-center">
                           <div className="inline-flex items-center gap-2 text-xs text-[#004F74] bg-[#F0F8FF] px-3 py-2 rounded-lg">
                             <svg
                               className="w-3 h-3 text-green-500"
@@ -781,12 +780,12 @@ function AddToCart() {
 
               {/* Success/Error Messages */}
               {(success || error) && (
-                <div className="mt-8">
+                <div className="mt-6">
                   {success && (
-                    <div className="p-4 bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-xl text-green-700 shadow-lg">
-                      <div className="flex items-center gap-3">
+                    <div className="p-3 bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-xl text-green-700 shadow-sm">
+                      <div className="flex items-center gap-3 text-sm">
                         <svg
-                          className="w-5 h-5 flex-shrink-0"
+                          className="w-4 h-4 flex-shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -803,10 +802,10 @@ function AddToCart() {
                     </div>
                   )}
                   {error && (
-                    <div className="p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 shadow-lg">
-                      <div className="flex items-center gap-3">
+                    <div className="p-3 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 shadow-sm">
+                      <div className="flex items-center gap-3 text-sm">
                         <svg
-                          className="w-5 h-5 flex-shrink-0"
+                          className="w-4 h-4 flex-shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -829,15 +828,11 @@ function AddToCart() {
         </div>
 
         {/* Premium Footer */}
-        <footer className="text-center py-8 text-[#004F74] text-sm mt-16 relative">
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent"></div>
-          <div className="max-w-6xl mx-auto">
-            <p className="mb-2 font-medium">
-              SUPUN EXPRESS &copy; {new Date().getFullYear()}
-            </p>
-            <p className="text-xs text-[#81BBDF]">
-              Elevating Global Commerce Through Premium Service
-            </p>
+        <footer className="text-center py-6 sm:py-8 text-[#004F74] text-sm mt-8 sm:mt-12 relative">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 md:w-48 h-px bg-gradient-to-r from-transparent via-[#81BBDF] to-transparent" />
+          <div className="max-w-5xl mx-auto">
+            <p className="mb-2 font-medium">SUPUN EXPRESS &copy; {new Date().getFullYear()}</p>
+            <p className="text-xs sm:text-sm text-[#81BBDF]">Elevating Global Commerce Through Premium Service</p>
           </div>
         </footer>
       </div>

@@ -112,10 +112,12 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
-          <div className="flex justify-center items-center h-64">
+      <div className="flex flex-col md:flex-row">
+        <div className="w-full md:w-64 flex-shrink-0">
+          <Sidebar />
+        </div>
+        <div className="flex-1 p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
+          <div className="flex justify-center items-center h-48 md:h-64">
             <div className="flex items-center gap-3 text-[#004F74]">
               <div className="w-5 h-5 border-2 border-[#002E4D] border-t-transparent rounded-full animate-spin"></div>
               Loading your profile...
@@ -128,11 +130,13 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
+      <div className="flex flex-col md:flex-row">
+        <div className="w-full md:w-64 flex-shrink-0">
+          <Sidebar />
+        </div>
+        <div className="flex-1 p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
           <div className="max-w-md mx-auto">
-            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl text-center">
+            <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 md:p-8 shadow-2xl text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-[#002E4D] to-[#004F74] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -157,51 +161,53 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex">
-      <Sidebar />
+    <div className="flex flex-col md:flex-row">
+      <div className="w-full md:w-64 flex-shrink-0">
+        <Sidebar />
+      </div>
       
       {/* Main Content */}
       <div className="flex-1 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF] relative overflow-hidden">
         {/* Premium Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#002E4D]/5 via-transparent to-[#81BBDF]/10"></div>
-        <div className="absolute top-0 right-0 w-72 h-72 bg-[#002E4D]/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#81BBDF]/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+        <div className="absolute top-0 right-0 w-48 md:w-72 h-48 md:h-72 bg-[#002E4D]/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-64 md:w-96 h-64 md:h-96 bg-[#81BBDF]/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
         
-        <div className="relative z-10 p-8">
+        <div className="relative z-10 p-6 md:p-8">
           <div className="max-w-4xl mx-auto">
             
             {/* Profile Card */}
             <div className="relative">
               {/* Card Glow Effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
+              <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-[#002E4D] to-[#81BBDF] rounded-3xl blur-xl opacity-10"></div>
               
               <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
                 {/* Profile Header with Avatar */}
-                <div className="bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white p-8">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6">
+                <div className="bg-gradient-to-r from-[#002E4D] to-[#004F74] text-white p-6 md:p-8">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6 w-full md:w-auto">
                       <div className="relative">
                         <div className="absolute -inset-2 bg-white/20 rounded-full blur-sm"></div>
-                        <div className="bg-white text-[#002E4D] w-20 h-20 flex items-center justify-center rounded-full font-bold text-3xl shadow-lg relative">
+                        <div className="bg-white text-[#002E4D] w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-full font-bold text-2xl md:text-3xl shadow-lg relative">
                           {user.displayName 
                             ? user.displayName[0].toUpperCase() 
                             : user.email[0].toUpperCase()}
                         </div>
                       </div>
                       <div>
-                        <h2 className="text-2xl font-semibold">
+                        <h2 className="text-xl md:text-2xl font-semibold">
                           {user.displayName || "No Name"}
                         </h2>
-                        <p className="text-[#CEE2FF] text-lg">{user.email}</p>
+                        <p className="text-[#CEE2FF] text-sm md:text-lg">{user.email}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                          <span className="text-sm text-[#CEE2FF]">Account Active</span>
+                          <span className="text-xs md:text-sm text-[#CEE2FF]">Account Active</span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-[#CEE2FF]">Member Since</div>
-                      <div className="text-white font-semibold">
+                      <div className="text-white font-semibold text-sm md:text-base">
                         {user.metadata?.creationTime ? 
                           new Date(user.metadata.creationTime).toLocaleDateString() : 
                           'Recently'
@@ -212,9 +218,9 @@ export default function Profile() {
                 </div>
                 
                 {/* Profile Form */}
-                <form onSubmit={handleSave} className="p-8">
+                <form onSubmit={handleSave} className="p-6 md:p-8">
                   {message && (
-                    <div className={`mb-8 p-4 rounded-xl border ${
+                    <div className={`mb-6 md:mb-8 p-4 rounded-xl border text-sm ${
                       message.includes("Error") 
                         ? "bg-red-50/80 backdrop-blur-sm text-red-700 border-red-200" 
                         : "bg-green-50/80 backdrop-blur-sm text-green-700 border-green-200"
@@ -232,7 +238,7 @@ export default function Profile() {
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
                     {/* Personal Information */}
                     <div className="md:col-span-2">
                       <h3 className="text-lg font-semibold text-[#002E4D] mb-4 flex items-center gap-2">
@@ -254,7 +260,7 @@ export default function Profile() {
                         value={formData.displayName}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -270,7 +276,7 @@ export default function Profile() {
                         value={formData.email}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter your email"
                       />
                     </div>
@@ -286,7 +292,7 @@ export default function Profile() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter your phone number"
                       />
                     </div>
@@ -302,7 +308,7 @@ export default function Profile() {
                         value={formData.postalCode}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter postal code"
                       />
                     </div>
@@ -329,7 +335,7 @@ export default function Profile() {
                         value={formData.address}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter your street address"
                       />
                     </div>
@@ -345,14 +351,14 @@ export default function Profile() {
                         value={formData.city}
                         onChange={handleInputChange}
                         disabled={!editMode}
-                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
+                        className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 md:p-4 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-300 text-[#002E4D] disabled:bg-[#CEE2FF]/30"
                         placeholder="Enter your city"
                       />
                     </div>
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="flex justify-end space-x-4 border-t border-[#81BBDF]/30 pt-8">
+                  <div className="flex flex-col md:flex-row justify-end space-y-3 md:space-y-0 md:space-x-4 border-t border-[#81BBDF]/30 pt-6">
                     {editMode ? (
                       <>
                         <button

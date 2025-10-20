@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
@@ -16,11 +18,28 @@ export default function Sidebar() {
         : "text-[#004F74] hover:bg-[#CEE2FF] hover:shadow-sm"
     }`;
 
-  return (
-    <div className="w-64 h-screen bg-white text-[#002E4D] p-6 fixed left-0 top-0 border-r border-[#81BBDF] flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white to-[#CEE2FF]/20">
+  // Mobile drawer state
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Ensure portal root exists
+  useEffect(() => {
+    let root = document.getElementById("mobile-sidebar-root");
+    if (!root) {
+      root = document.createElement("div");
+      root.id = "mobile-sidebar-root";
+      document.body.appendChild(root);
+    }
+    return () => {
+      // keep the root (reuse across navigations)
+    };
+  }, []);
+
+  // Make sidebar non-fixed on small screens so the drawer's close button can sit above it.
+  const sidebarContent = (
+    <div className="w-64 h-screen bg-white text-[#002E4D] p-6 relative md:fixed md:left-0 md:top-0 md:border-r md:border-[#81BBDF] flex flex-col justify-between overflow-hidden bg-gradient-to-b from-white to-[#CEE2FF]/20 md:z-40">
       {/* Subtle texture overlay for luxury feel */}
       <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDJFNEMiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2Utb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNIDAgMCBMIDYwIDYwIE0gNjAgMCBMIDAgNjAiLz48L2c+PC9zdmc+')]"></div>
-      
+
       {/* Top Section */}
       <div className="relative z-10">
         {/* Logo/Brand */}
@@ -86,5 +105,58 @@ export default function Sidebar() {
         </div>
       </div>
     </div>
+  );
+
+  // Mobile portal: hamburger button + slide-over drawer
+  const mobilePortal = (
+    <>
+      {/* Floating hamburger - visible only on small screens */}
+      <button
+        aria-label="Open sidebar"
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-50 md:hidden w-11 h-11 rounded-lg bg-white/90 border border-[#81BBDF] flex items-center justify-center shadow-md"
+      >
+        <svg className="w-5 h-5 text-[#002E4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Drawer */}
+      {mobileOpen &&
+        ReactDOM.createPortal(
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setMobileOpen(false)}
+            />
+            <div className="absolute left-0 top-0 bottom-0 w-72 bg-white p-4 overflow-auto shadow-xl">
+              {/* Close button placed above sidebar content with high z */}
+              <button
+                aria-label="Close sidebar"
+                onClick={() => setMobileOpen(false)}
+                className="absolute top-3 right-3 z-50 p-2 rounded-md text-[#004F74] bg-white/60 hover:text-[#002E4D]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* render sidebar content (now relative on small screens) */}
+              <div className="mt-6">{sidebarContent}</div>
+            </div>
+          </div>,
+          document.getElementById("mobile-sidebar-root")
+        )}
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop / md+ sidebar (original) */}
+      <div className="hidden md:block">{sidebarContent}</div>
+
+      {/* Mobile floating button + drawer rendered via portal so it shows regardless of parent wrappers */}
+      {mobilePortal}
+    </>
   );
 }

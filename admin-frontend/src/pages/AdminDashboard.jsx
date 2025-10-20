@@ -47,30 +47,30 @@ const AdminDashboard = () => {
     }
 
     const fetchData = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const db = getFirestore();
-    const submissionsRef = collection(db, "submissions");
+      setLoading(true);
+      setError(null);
+      try {
+        const db = getFirestore();
+        const submissionsRef = collection(db, "submissions");
 
-    // Firestore query: order by submittedAt descending
-    const q = query(submissionsRef, orderBy("submittedAt", "desc"));
-    const snapshot = await getDocs(q);
+        // Firestore query: order by submittedAt descending
+        const q = query(submissionsRef, orderBy("submittedAt", "desc"));
+        const snapshot = await getDocs(q);
 
-    const submissions = snapshot.docs.map((doc) => doc.data());
-    setLinks(submissions); // No need to reverse now
+        const submissions = snapshot.docs.map((doc) => doc.data());
+        setLinks(submissions); // No need to reverse now
 
-    // Load sent invoices from localStorage
-    const savedInvoices = localStorage.getItem("sentInvoices");
-    if (savedInvoices) {
-      setSentInvoices(JSON.parse(savedInvoices));
-    }
-  } catch (err) {
-    setError("Failed to fetch links: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+        // Load sent invoices from localStorage
+        const savedInvoices = localStorage.getItem("sentInvoices");
+        if (savedInvoices) {
+          setSentInvoices(JSON.parse(savedInvoices));
+        }
+      } catch (err) {
+        setError("Failed to fetch links: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchData();
   }, []);
@@ -278,77 +278,96 @@ const AdminDashboard = () => {
   }, [orders]);
 
   return (
-    <div className="flex">
+    // Mobile-first layout: stack on small screens, sidebar visible on md+
+    <div className="flex flex-col md:flex-row">
+      {/* render Sidebar so its mobile hamburger/drawer is available on small screens */}
       <Sidebar />
-      <div className="ml-64 flex-1 p-8 min-h-screen bg-gradient-to-b from-[#CEE2FF]/10 to-white">
+
+      <div className="flex-1 p-6 md:p-8 min-h-screen bg-gradient-to-b from-[#CEE2FF]/10 to-white md:ml-64 pt-16 md:pt-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-[#002E4D]">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-[#002E4D]">
               Admin Dashboard
             </h1>
-            <p className="text-[#004F74]">
+            <p className="text-[#004F74] text-sm md:text-base">
               Manage user submissions and create product cards
             </p>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex border-b border-[#81BBDF] mb-6 gap-80">
-            <button
-              className={`px-6 py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
-                activeTab === "pending"
-                  ? "border-[#002E4D] text-[#002E4D]"
-                  : "border-transparent text-[#004F74] hover:text-[#002E4D]"
-              }`}
-              onClick={() => setActiveTab("pending")}
-            >
-              LINKS
-              {links.reduce(
-                (total, row) => total + (row.links ? row.links.length : 0),
-                0
-              ) > 0 && (
-                <span className="ml-2 bg-[#002E4D] text-white text-xs px-2 py-1 rounded-full">
-                  {links.reduce(
-                    (total, row) => total + (row.links ? row.links.length : 0),
-                    0
-                  )}
-                </span>
-              )}
-            </button>
-            <button
-              className={`px-6 py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
-                activeTab === "sent"
-                  ? "border-[#002E4D] text-[#002E4D]"
-                  : "border-transparent text-[#004F74] hover:text-[#002E4D]"
-              }`}
-              onClick={() => setActiveTab("sent")}
-            >
-              SENT INVOICES
-              {sentInvoices.length > 0 && (
-                <span className="ml-2 bg-[#002E4D] text-white text-xs px-2 py-1 rounded-full">
-                  {sentInvoices.length}
-                </span>
-              )}
-            </button>
-            <button
-              className={`px-6 py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
-                activeTab === "orders"
-                  ? "border-[#002E4D] text-[#002E4D]"
-                  : "border-transparent text-[#004F74] hover:text-[#002E4D]"
-              }`}
-              onClick={() => setActiveTab("orders")}
-            >
-              ORDERS
-              {orders.length > 0 && (
-                <span className="ml-2 bg-[#002E4D] text-white text-xs px-2 py-1 rounded-full">
-                  {orders.length}
-                </span>
-              )}
-            </button>
+          {/* Tab Navigation - responsive, centered on mobile, left-aligned on larger screens */}
+          <div className="mb-6 border-b border-[#81BBDF]">
+            <div className="flex items-center justify-between">
+              <nav className="w-full sm:w-auto">
+                <div className="flex gap-3 sm:gap-8 overflow-x-auto no-scrollbar px-1 sm:px-0 justify-center sm:justify-start">
+                  <button
+                    className={`whitespace-nowrap px-4 py-2 md:px-6 md:py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
+                      activeTab === "pending"
+                        ? "border-[#002E4D] text-[#002E4D]"
+                        : "border-transparent text-[#004F74] hover:text-[#002E4D]"
+                    }`}
+                    onClick={() => setActiveTab("pending")}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span>LINKS</span>
+                      <span className="bg-[#002E4D] text-white text-xs px-2 py-0.5 rounded-full">
+                        {links.reduce(
+                          (total, row) => total + (row.links ? row.links.length : 0),
+                          0
+                        )}
+                      </span>
+                    </span>
+                  </button>
+
+                  <button
+                    className={`whitespace-nowrap px-4 py-2 md:px-6 md:py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
+                      activeTab === "sent"
+                        ? "border-[#002E4D] text-[#002E4D]"
+                        : "border-transparent text-[#004F74] hover:text-[#002E4D]"
+                    }`}
+                    onClick={() => setActiveTab("sent")}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span>SENT INVOICES</span>
+                      <span className="bg-[#002E4D] text-white text-xs px-2 py-0.5 rounded-full">
+                        {sentInvoices.length}
+                      </span>
+                    </span>
+                  </button>
+
+                  <button
+                    className={`whitespace-nowrap px-4 py-2 md:px-6 md:py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
+                      activeTab === "orders"
+                        ? "border-[#002E4D] text-[#002E4D]"
+                        : "border-transparent text-[#004F74] hover:text-[#002E4D]"
+                    }`}
+                    onClick={() => setActiveTab("orders")}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span>ORDERS</span>
+                      <span className="bg-[#002E4D] text-white text-xs px-2 py-0.5 rounded-full">
+                        {orders.length}
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </nav>
+
+              <div className="hidden sm:flex items-center gap-4 text-sm text-[#004F74]">
+                <div className="inline-flex items-center gap-2">
+                  <span className="text-[#002E4D] font-semibold">{links.length}</span>
+                  <span className="text-xs">users</span>
+                </div>
+                <div className="inline-flex items-center gap-2">
+                  <span className="text-[#002E4D] font-semibold">{orders.length}</span>
+                  <span className="text-xs">orders</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-6 text-center shadow-sm">
               <div className="w-12 h-12 bg-[#002E4D] rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg
@@ -513,25 +532,34 @@ const AdminDashboard = () => {
                   >
                     {/* User Header */}
                     <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#81BBDF]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#002E4D] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                      <div className="flex items-center gap-3 pr-4 min-w-0">
+                        <div className="w-10 h-10 bg-[#002E4D] text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
                           {row.name ? row.name[0].toUpperCase() : "U"}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-lg text-[#002E4D]">
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-lg text-[#002E4D] truncate">
                             {row.name || "No Name"}
                           </h3>
                           {row.email && (
-                            <p className="text-sm text-[#004F74]">
+                            <p className="text-sm text-[#004F74] truncate">
                               {row.email}
                             </p>
                           )}
                         </div>
                       </div>
                       {row.submittedAt && (
-                        <span className="text-xs text-[#004F74] bg-[#CEE2FF]/50 px-2 py-1 rounded">
-                          {new Date(row.submittedAt).toLocaleDateString()}
-                        </span>
+                        <div className="flex-shrink-0 ml-4">
+                          <time
+                            dateTime={new Date(row.submittedAt).toISOString()}
+                            className="inline-flex items-center gap-2 text-xs text-[#002E4D] bg-white/90 border border-[#CEE2FF] px-2.5 py-1 rounded-md shadow-sm"
+                            title={new Date(row.submittedAt).toLocaleString()}
+                          >
+                            <svg className="w-3 h-3 text-[#81BBDF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="font-medium">{new Date(row.submittedAt).toLocaleDateString()}</span>
+                          </time>
+                        </div>
                       )}
                     </div>
 
@@ -660,8 +688,8 @@ const AdminDashboard = () => {
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-[#002E4D]">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                    <h3 className="text-lg font-semibold text-[#002E4D] mb-3 sm:mb-0">
                       Sent Invoices ({sentInvoices.length})
                     </h3>
                     <button
@@ -686,11 +714,11 @@ const AdminDashboard = () => {
                   </div>
                   {sentInvoices.map((invoice, idx) => (
                     <div
-                      key={invoice.id}
+                      key={invoice.id || idx}
                       className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-6 shadow-sm"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+                        <div className="flex items-center gap-3 mb-3 sm:mb-0">
                           <div className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center">
                             <svg
                               className="w-5 h-5"
@@ -789,33 +817,45 @@ const AdminDashboard = () => {
                 orders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-6 shadow-sm"
+                    className="bg-white/80 backdrop-blur-sm border border-[#81BBDF] rounded-xl p-6 shadow-sm overflow-hidden break-words"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-bold text-lg text-[#002E4D]">
-                          {order.userName} ({order.userEmail})
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 min-w-0">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-[#002E4D] truncate">
+                          {order.userName || "No Name"}
                         </h3>
-                        <div className="text-sm text-[#004F74]">
-                          {order.address} | {order.postalCode} 
+
+                        {/* Email on its own line, allows wrapping and mailto link for quick access */}
+                        <p className="text-sm text-[#004F74] mt-1 mb-2 break-words leading-tight max-w-full">
+                          <a
+                            href={order.userEmail ? `mailto:${order.userEmail}` : "#"}
+                            className="underline hover:text-[#002E4D] break-words"
+                            title={order.userEmail}
+                          >
+                            {order.userEmail || "No email"}
+                          </a>
+                        </p>
+
+                        <div className="text-sm text-[#004F74] break-words">
+                          {order.address} {order.address && order.postalCode ? " | " : ""} {order.postalCode}
                         </div>
-                        <div className="text-sm text-[#004F74]">
-                          Phone: {order.phone}
+                        <div className="text-sm text-[#004F74] mt-1">
+                          Phone: <span className="break-words">{order.phone}</span>
                         </div>
-                        <div className="text-sm text-[#004F74]">
-                          Oder ID: {order.orderId}
+                        <div className="text-sm text-[#004F74] mt-1">
+                          Order ID: <span className="font-medium break-all">{order.orderId}</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-[#002E4D]">
+                      <div className="text-right mt-4 sm:mt-0 sm:ml-6 flex-shrink-0">
+                        <div className="text-2xl font-bold text-[#002E4D] whitespace-nowrap">
                           {order.total} LKR
                         </div>
-                        <div className="text-xs text-[#004F74]">
+                        <div className="text-xs text-[#004F74] whitespace-nowrap mt-1">
                           {order.timestamp?.toDate
                             ? order.timestamp.toDate().toLocaleString()
                             : new Date(order.timestamp).toLocaleString()}
                         </div>
-                        <div className="text-xs text-[#004F74]">
+                        <div className="text-xs text-[#004F74] whitespace-nowrap">
                           {order.paymentMethod?.toUpperCase()}
                         </div>
                       </div>
@@ -869,7 +909,7 @@ const AdminDashboard = () => {
                           ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
                       <select
                         className="px-2 py-1 border border-[#81BBDF] rounded text-xs text-[#002E4D] bg-white"
                         value={order.status || "Order Placed"}
@@ -883,7 +923,7 @@ const AdminDashboard = () => {
                         <option>Delivered</option>
                       </select>
                       <button
-                        className={`ml-2 px-3 py-1 rounded text-xs transition ${
+                        className={`ml-0 sm:ml-2 px-3 py-1 rounded text-xs transition ${
                           pushDisabled[order.id]
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-[#002E4D] text-white hover:bg-[#004F74]"

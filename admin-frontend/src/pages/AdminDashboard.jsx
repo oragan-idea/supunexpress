@@ -299,7 +299,7 @@ const AdminDashboard = () => {
           <div className="mb-6 border-b border-[#81BBDF]">
             <div className="flex items-center justify-between">
               <nav className="w-full sm:w-auto">
-                <div className="flex gap-3 sm:gap-8 overflow-x-auto no-scrollbar px-1 sm:px-0 justify-center sm:justify-start">
+                <div className="flex gap-3 sm:gap-8 overflow-x-auto no-scrollbar px-1 sm:px-0 pl-12 sm:pl-0 justify-start">
                   <button
                     className={`whitespace-nowrap px-4 py-2 md:px-6 md:py-3 font-medium text-sm transition-all duration-300 border-b-2 ${
                       activeTab === "pending"
@@ -353,16 +353,7 @@ const AdminDashboard = () => {
                 </div>
               </nav>
 
-              <div className="hidden sm:flex items-center gap-4 text-sm text-[#004F74]">
-                <div className="inline-flex items-center gap-2">
-                  <span className="text-[#002E4D] font-semibold">{links.length}</span>
-                  <span className="text-xs">users</span>
-                </div>
-                <div className="inline-flex items-center gap-2">
-                  <span className="text-[#002E4D] font-semibold">{orders.length}</span>
-                  <span className="text-xs">orders</span>
-                </div>
-              </div>
+              {/* summary removed */}
             </div>
           </div>
 

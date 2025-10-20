@@ -116,10 +116,10 @@ const SignUp = () => {
                     placeholder="Enter your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-10 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-12 md:pl-14 lg:pl-16 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
                     required
                   />
-                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74] z-20 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -131,10 +131,10 @@ const SignUp = () => {
                     placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-10 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-12 md:pl-14 lg:pl-16 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
                     required
                   />
-                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74] z-20 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
@@ -146,10 +146,10 @@ const SignUp = () => {
                     placeholder="Create a secure password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-10 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
+                    className="relative w-full bg-white/95 border-2 border-[#81BBDF]/30 rounded-xl p-3 sm:p-4 pl-12 md:pl-14 lg:pl-16 focus:outline-none focus:border-[#002E4D] focus:ring-2 focus:ring-[#002E4D]/20 transition-all duration-200 text-[#002E4D] placeholder-[#004F74]/60"
                     required
                   />
-                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#004F74] z-20 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>

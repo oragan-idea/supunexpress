@@ -16,7 +16,7 @@ function App() {
 
   const sendEmail = async (data) => {
     const EMAIL_SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbwuDoDnhStp86-yOS58q9XsiJ41KeoH3CqMfZSPhO2m-XK19unPMXC9w_8DZbImfaFz/exec";
+      "https://script.google.com/macros/s/AKfycbxNPKlVyI1_o7-6ArAjIdKMBGU40Zy-bWuzQ4w-Ivu24QT3BEg2it6FeHrPgk0qWe5A/exec";
     try {
       await fetch(EMAIL_SCRIPT_URL, {
         method: "POST",

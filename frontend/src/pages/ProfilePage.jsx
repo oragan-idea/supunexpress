@@ -113,7 +113,8 @@ export default function Profile() {
   if (loading) {
     return (
       <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-64 flex-shrink-0">
+        {/* Show page sidebar only on small screens to avoid duplication when layout already provides one */}
+        <div className="w-full md:w-64 flex-shrink-0 md:hidden">
           <Sidebar />
         </div>
         <div className="flex-1 p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
@@ -131,7 +132,8 @@ export default function Profile() {
   if (!user) {
     return (
       <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-64 flex-shrink-0">
+        {/* Show page sidebar only on small screens to avoid duplication when layout already provides one */}
+        <div className="w-full md:w-64 flex-shrink-0 md:hidden">
           <Sidebar />
         </div>
         <div className="flex-1 p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#CEE2FF] via-white to-[#E8F2FF]">
@@ -162,7 +164,8 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col md:flex-row">
-      <div className="w-full md:w-64 flex-shrink-0">
+      {/* Show page sidebar only on small screens to avoid duplication when layout already provides one */}
+      <div className="w-full md:w-64 flex-shrink-0 md:hidden">
         <Sidebar />
       </div>
       

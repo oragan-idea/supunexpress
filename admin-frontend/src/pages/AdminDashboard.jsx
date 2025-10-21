@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  deleteDoc, // added
 } from "firebase/firestore"; // Add this import
 import "../firebase";
 
@@ -60,11 +61,12 @@ const AdminDashboard = () => {
         const submissions = snapshot.docs.map((doc) => doc.data());
         setLinks(submissions); // No need to reverse now
 
-        // Load sent invoices from localStorage
-        const savedInvoices = localStorage.getItem("sentInvoices");
-        if (savedInvoices) {
-          setSentInvoices(JSON.parse(savedInvoices));
-        }
+        // Load sent invoices FROM Firestore (no longer from localStorage)
+        const invoicesRef = collection(db, "invoices");
+        // optionally order by createdAt if stored consistently
+        const invoicesSnap = await getDocs(query(invoicesRef, orderBy("createdAt", "desc")));
+        const invoices = invoicesSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setSentInvoices(invoices);
       } catch (err) {
         setError("Failed to fetch links: " + err.message);
       } finally {
@@ -141,12 +143,13 @@ const AdminDashboard = () => {
         invoiceId: `INV-${Date.now()}`,
       };
 
-      await addDoc(collection(db, "invoices"), invoice);
+      const docRef = await addDoc(collection(db, "invoices"), invoice);
 
-      // Add to sent invoices (local state)
-      const updatedInvoices = [...sentInvoices, invoice];
+      // Add to sent invoices (local state) using Firestore doc id
+      const newInvoice = { id: docRef.id, ...invoice };
+      const updatedInvoices = [...sentInvoices, newInvoice];
       setSentInvoices(updatedInvoices);
-      localStorage.setItem("sentInvoices", JSON.stringify(updatedInvoices));
+      // no localStorage usage
 
       // Remove the link from pending links
       setLinks((prevLinks) =>
@@ -167,10 +170,24 @@ const AdminDashboard = () => {
     }
   };
 
-  // Clear all sent invoices
-  const clearSentInvoices = () => {
-    setSentInvoices([]);
-    localStorage.removeItem("sentInvoices");
+  // Clear all sent invoices (now removes from Firestore)
+  const clearSentInvoices = async () => {
+    if (!window.confirm("Are you sure you want to delete all sent invoices from Firestore? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const db = getFirestore();
+      const invoicesRef = collection(db, "invoices");
+      const snapshot = await getDocs(invoicesRef);
+
+      const deletes = snapshot.docs.map((d) => deleteDoc(doc(db, "invoices", d.id)));
+      await Promise.all(deletes);
+
+      setSentInvoices([]);
+    } catch (err) {
+      alert("Failed to clear invoices: " + err.message);
+    }
   };
 
   // Add this function inside AdminDashboard component
@@ -683,7 +700,7 @@ const AdminDashboard = () => {
                     <h3 className="text-lg font-semibold text-[#002E4D] mb-3 sm:mb-0">
                       Sent Invoices ({sentInvoices.length})
                     </h3>
-                    <button
+                    {/* <button
                       onClick={clearSentInvoices}
                       className="px-4 py-2 text-sm text-[#004F74] hover:text-red-600 transition-colors flex items-center gap-2"
                     >
@@ -701,7 +718,7 @@ const AdminDashboard = () => {
                         />
                       </svg>
                       Clear All
-                    </button>
+                    </button> */}
                   </div>
                   {sentInvoices.map((invoice, idx) => (
                     <div

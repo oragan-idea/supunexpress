@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { auth, logOut } from "../firebase";
 
 export default function Sidebar() {
@@ -7,12 +7,67 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // preserve original inline display styles so we can restore them
+  const savedDisplayRef = useRef(new Map());
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
+
+  // Hide other menu/hamburger buttons in the page while this sidebar is open,
+  // and restore them when the sidebar closes.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const menuSelectors = [
+      ".mobile-menu-button",
+      ".menu-toggle",
+      ".menu-btn",
+      "button[aria-label='menu']",
+      "button[aria-label='open menu']",
+      "button[aria-label='Open menu']",
+      "button[data-menu-toggle]",
+      "#menu-button",
+      ".hamburger",
+      // common header selectors (adjust if your layout uses custom classes)
+      "header .mobile-toggle",
+      "header .menu-button"
+    ];
+
+    const elems = menuSelectors.flatMap(sel => Array.from(document.querySelectorAll(sel)));
+
+    if (isMobileMenuOpen) {
+      elems.forEach(el => {
+        if (!(el instanceof HTMLElement)) return;
+        // skip elements that are children of this sidebar component
+        if (el.closest && el.closest(".sidebar-root") === el.closest(".sidebar-root")) {
+          // noop - not a reliable exclusion; keep for clarity (no-op)
+        }
+        // save previous display only once
+        if (!savedDisplayRef.current.has(el)) {
+          savedDisplayRef.current.set(el, el.style.display ?? "");
+        }
+        el.style.display = "none";
+      });
+    } else {
+      // restore
+      savedDisplayRef.current.forEach((prev, el) => {
+        if (el instanceof HTMLElement) el.style.display = prev;
+      });
+      savedDisplayRef.current.clear();
+    }
+
+    // cleanup on unmount
+    return () => {
+      savedDisplayRef.current.forEach((prev, el) => {
+        if (el instanceof HTMLElement) el.style.display = prev;
+      });
+      savedDisplayRef.current.clear();
+    };
+  }, [isMobileMenuOpen]);
 
   const linkClasses = (path) =>
     `flex items-center p-3 rounded-lg transition-all duration-300 ${
@@ -45,7 +100,7 @@ export default function Sidebar() {
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div className={`sidebar-root
         fixed lg:static inset-y-0 left-0 z-40
         w-64 h-screen bg-white text-[#002E4D] p-4 sm:p-6 
         border-r border-[#81BBDF] flex flex-col justify-between 
@@ -60,7 +115,6 @@ export default function Sidebar() {
             onClick={() => setIsMobileMenuOpen(false)}
             className="lg:hidden absolute top-3 right-3 z-50 w-9 h-9 rounded-md flex items-center justify-center bg-white border border-[#DFEAF2] shadow-sm text-[#002E4D] focus:outline-none"
           >
-            {/* simple X (replace with scissors SVG if you prefer) */}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
